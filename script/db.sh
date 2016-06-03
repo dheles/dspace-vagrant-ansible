@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+function usage
+{
+  echo "usage: db [[[-a ADMIN ] [-u APPLICATION_USER]] | [-h]]"
+}
+
+# set defaults:
+ADMIN="vagrant"
+APPLICATION_USER="dspace"
+
+# process arguments:
+while [ "$1" != "" ]; do
+  case $1 in
+    -a | --admin )    shift
+                      ADMIN=$1
+                      ;;
+    -u | --user )     shift
+                      APPLICATION_USER=$1
+                      ;;
+    -h | --help )     usage
+                      exit
+                      ;;
+    * )               usage
+                      exit 1
+  esac
+  shift
+done
+
+# postgres
+POSTGRES_VERSION="3.3.9"
+if pg_config --version | grep $POSTGRES_VERSION ; then
+  echo "--> postgres $POSTGRES_VERSION already installed, moving on."
+else
+  echo "--> Installing postgres $POSTGRES_VERSION..."
+	sudo yum install -y postgresql-server
+	sudo postgresql-setup initdb
+	sudo systemctl enable postgresql.service
+	sudo systemctl start postgresql.service
+  if pg_config --version | grep $POSTGRES_VERSION ; then
+    echo "--> postgres now installed."
+  else
+    echo "ERROR: attempted to install psotgres $POSTGRES_VERSION, but something went wrong"
+  fi
+fi

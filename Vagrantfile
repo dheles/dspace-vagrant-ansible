@@ -68,4 +68,10 @@ Vagrant.configure(2) do |config|
   #   sudo apt-get update
   #   sudo apt-get install -y apache2
   # SHELL
+
+  # do minimal provisioning to set up
+  config.vm.provision "prerequisites", type: "shell", path: "script/prereqs.sh"
+
+  # install database (if not using external db server)
+  config.vm.provision "db", type: "shell", path: "script/db.sh"
 end
