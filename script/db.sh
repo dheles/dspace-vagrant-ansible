@@ -28,7 +28,7 @@ while [ "$1" != "" ]; do
 done
 
 # postgres
-POSTGRES_VERSION="3.3.9"
+POSTGRES_VERSION="9.2.15"
 if pg_config --version | grep $POSTGRES_VERSION ; then
   echo "--> postgres $POSTGRES_VERSION already installed, moving on."
 else
@@ -40,6 +40,6 @@ else
   if pg_config --version | grep $POSTGRES_VERSION ; then
     echo "--> postgres now installed."
   else
-    echo "ERROR: attempted to install psotgres $POSTGRES_VERSION, but something went wrong"
+    echo "ERROR: attempted to install postgres $POSTGRES_VERSION, but something went wrong"
   fi
 fi

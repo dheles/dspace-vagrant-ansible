@@ -2,29 +2,13 @@
 
 # test
 
-# rails
-RAILS_VERSION="4.2.6"
-if rails -v | grep $RAILS_VERSION; then
-  echo "--> rails $RAILS_VERSION already installed, moving on."
-else
-  echo "--> Installing rails $RAILS_VERSION ..."
-fi
+# selector='<Connector port="8080" protocol="HTTP/1.1"'
+# addition='URIEncoding="UTF-8"'
+# echo $selector
+# sed -i '' -e '/<Connector port=\"8080\" protocol=\"HTTP\/1.1\"/ a\
+# \         URIEncoding="UTF-8"' test.txt
 
-# java
-JAVA_VERSION="1.7.0"
-if java -version 2>&1 | grep $JAVA_VERSION ; then
-  echo "--> java $JAVA_VERSION already installed, moving on."
-else
-  echo "--> Installing java $JAVA_VERSION..."
-fi
-
-# maven
-MAVEN_VERSION="3.3.9"
-if mvn -version 2>&1 | grep $MAVEN_VERSION ; then
-  echo "--> maven $MAVEN_VERSION already installed, moving on."
-else
-  echo "--> Installing maven $MAVEN_VERSION..."
-fi
-# ant
-# postgres
-# apache
+# sed -i '' 's/^[[:space:].*<theme .*/GONE/' test.txt
+sed -i '' 's/^[[:space:]]*<theme .*/<!-- & -->/' test.txt
+sed -i '' -e '/<\/themes>/ i\
+\      <theme name="Mirage 2" regex=".*" path="Mirage2\/" \/>' test.txt

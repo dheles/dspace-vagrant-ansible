@@ -22,7 +22,7 @@ Vagrant.configure(2) do |config|
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
-  # config.vm.network "forwarded_port", guest: 80, host: 8080
+  config.vm.network "forwarded_port", guest: 8080, host: 8080
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
@@ -74,4 +74,16 @@ Vagrant.configure(2) do |config|
 
   # install database (if not using external db server)
   config.vm.provision "db", type: "shell", path: "script/db.sh"
+
+  # --- EITHER: ---
+# run the following series only to build a dspace instance
+# begin: build series
+config.vm.provision "build dspace", type: "shell", path: "script/build_dspace.sh"
+# end: build series
+
+# --- OR: ---
+# run the following series to deploy a dspace instance from a git(hub) repo
+# begin: deploy series
+# config.vm.provision "deploy dspace", type: "shell", path: "script/deploy_dspace.sh"
+# end: deploy series
 end
