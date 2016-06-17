@@ -37,9 +37,14 @@ APPLICATION_USER_HOME="/home/$APPLICATION_USER"
 DSPACE_SOURCE="dspace-$DSPACE_VERSION-src-release"
 MAIL_SERVER="SMTP.CHANGEME.EDU"
 MAIL_ADMIN="CHANGEME@CHANGEME.EDU"
+ADMIN_EMAIL="ADMIN@CHANGEME.EDU"
+ADMIN_FIRSTNAME="CHANGE"
+ADMIN_LASTNAME="ME"
+ADMIN_PASSWORD="CHANGEME"
+ADMIN_LANGUAGE="English"
 
 # TODO: figure out an appropriate check for this:
-if  $DSPACE_INSTALL/bin/dspace database test | grep $DSPACE_VERSION ; then
+if  $DSPACE_INSTALL/bin/dspace version | grep $DSPACE_VERSION ; then
   echo "--> dspace $DSPACE_VERSION already installed, moving on."
 else
   echo "--> Installing dspace $DSPACE_VERSION..."
@@ -47,7 +52,7 @@ else
   # TODO: if this can and should be broken out into a separate script (e.g. for a remote DB), do so
   # configure database
   # TODO: figure out an appropriate check for this:
-  if $DSPACE_INSTALL/bin/dspace database test | grep $DSPACE_VERSION; then
+  if $DSPACE_INSTALL/bin/dspace database test | grep "Connected successfully"; then
     echo "--> Database already configured, moving on."
   else
     echo "--> Configuring database..."
@@ -116,7 +121,7 @@ else
     sudo chown -R $APPLICATION_USER: $DSPACE_SOURCE
     sudo su - $APPLICATION_USER bash -c "cd $DSPACE_SOURCE && mvn package -Dmirage2.on=true"
 
-    # install dspace 
+    # install dspace
     echo "--> Installing..."
     sudo su - $APPLICATION_USER bash -c "cd $DSPACE_SOURCE/dspace/target/dspace-installer && ant fresh_install"
 
@@ -126,12 +131,17 @@ else
     cd $CATALINA_HOME/webapps
     sudo rm -rf lni/ solr/ oai/ swordv2/ jspui/ sword/ xmlui/
     sudo cp -R $DSPACE_INSTALL/webapps/* $CATALINA_HOME/webapps
-
-    # initialize database:
-    echo "--> Initializing..."
-    $DSPACE_INSTALL/bin/dspace database migrate
-
-    # add administrator account
-    $DSPACE_INSTALL/bin/dspace create-administrator -h
   fi
+fi
+
+# initial setup
+# these can safely run repeatedly, unless you don't want to migrate the database yet for some reason
+if true ; then
+  # initialize database:
+  echo "--> Initializing..."
+  $DSPACE_INSTALL/bin/dspace database info
+  $DSPACE_INSTALL/bin/dspace database migrate
+
+  # add administrator account
+  $DSPACE_INSTALL/bin/dspace create-administrator -e $ADMIN_EMAIL -f $ADMIN_FIRSTNAME -l $ADMIN_LASTNAME -c $ADMIN_LANGUAGE -p $ADMIN_PASSWORD
 fi

@@ -35,6 +35,9 @@ else
   echo "--> Installing postgres $POSTGRES_VERSION..."
 	sudo yum install -y postgresql-server
 	sudo postgresql-setup initdb
+
+  echo -e "local\tall\tpostgres\tident\nhost\tdspace\tdspace\t127.0.0.1/32\tmd5" | sudo tee /var/lib/pgsql/data/pg_hba.conf
+
 	sudo systemctl enable postgresql.service
 	sudo systemctl start postgresql.service
   if pg_config --version | grep $POSTGRES_VERSION ; then
