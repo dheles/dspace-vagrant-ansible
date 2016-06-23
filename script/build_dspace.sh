@@ -34,7 +34,10 @@ DSPACE_INSTALL="$INSTALL_DIR/dspace"
 APPLICATION_USER_DB_PASSWORD=$(openssl rand -base64 33)
 APPLICATION_DB_NAME="dspace"
 APPLICATION_USER_HOME="/home/$APPLICATION_USER"
-DSPACE_SOURCE="dspace-$DSPACE_VERSION-src-release"
+# DSPACE_SOURCE="dspace-$DSPACE_VERSION-src-release"
+DSPACE_SOURCE="dspace-$DSPACE_VERSION"
+REPO="https://github.com/jhu-sheridan-libraries/DSpace.git"
+BRANCH="styling"
 MAIL_SERVER="SMTP.CHANGEME.EDU"
 MAIL_ADMIN="CHANGEME@CHANGEME.EDU"
 ADMIN_EMAIL="ADMIN@CHANGEME.EDU"
@@ -84,9 +87,17 @@ else
   # get the source, if we need it:
   cd $APPLICATION_USER_HOME
   if [ ! -d $DSPACE_SOURCE ]; then
-    wget -q https://github.com/DSpace/DSpace/releases/download/dspace-$DSPACE_VERSION/$DSPACE_SOURCE.tar.gz
-    tar -zxf $DSPACE_SOURCE.tar.gz
-    rm $DSPACE_SOURCE.tar.gz
+    # NOTE: to get release, rather than repo:
+    # wget -q https://github.com/DSpace/DSpace/releases/download/dspace-$DSPACE_VERSION/$DSPACE_SOURCE.tar.gz
+    # tar -zxf $DSPACE_SOURCE.tar.gz
+    # rm $DSPACE_SOURCE.tar.gz
+    if [ ! -z "$BRANCH" ]; then
+      BRANCH="--branch $BRANCH"
+    fi
+    echo "cloning: $REPO $BRANCH $DSPACE_SOURCE"
+  	git clone $REPO $BRANCH $DSPACE_SOURCE
+    # TODO: necessary?
+  	sudo chown -R $APPLICATION_USER: $DSPACE_SOURCE
   fi
   # make sure we have what we need before proceeding
   if [ ! -d $DSPACE_SOURCE ]; then
