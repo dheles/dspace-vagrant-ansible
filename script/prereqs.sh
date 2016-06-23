@@ -2,7 +2,7 @@
 
 function usage
 {
-  echo "usage: prereqs [[[-a ADMIN ] [-u APPLICATION_USER] [-t TOMCAT_ADMIN] [-p TOMCAT_ADMIN_PASSWORD]] | [-h]]"
+  echo "usage: prereqs [[[-a ADMIN ] [-u APPLICATION_USER] [-t TOMCAT_ADMIN] [-p TOMCAT_ADMIN_PASSWORD] [-n HOSTNAME]] | [-h]]"
 }
 
 # set defaults:
@@ -10,6 +10,7 @@ ADMIN="vagrant"
 APPLICATION_USER="dspace"
 TOMCAT_ADMIN="CHANGEME"
 TOMCAT_ADMIN_PASSWORD="CHANGEME"
+HOSTNAME="DSPACE.CHANGEME.EDU"
 
 # process arguments:
 while [ "$1" != "" ]; do
@@ -25,6 +26,9 @@ while [ "$1" != "" ]; do
                               ;;
     -p | --tomcat_password )  shift
                               TOMCAT_ADMIN_PASSWORD=$1
+                              ;;
+    -n | --hostname )         shift
+                              HOSTNAME=$1
                               ;;
     -h | --help )             usage
                               exit
@@ -51,6 +55,11 @@ sudo yum install -y unzip
 sudo yum install -y git
 sudo yum install -y epel-release
 echo "--> prereqs are now installed."
+
+# set hostname
+echo "--> setting hostname"
+sudo hostnamectl set-hostname $HOSTNAME
+hostnamectl status
 
 # java
 # JAVA_VERSION="1.8.0"
@@ -178,7 +187,7 @@ Environment=CATALINA_PID=$CATALINA_HOME/temp/tomcat.pid
 PIDFile=$CATALINA_HOME/temp/tomcat.pid
 
 ExecStart=$CATALINA_HOME/bin/startup.sh
-ExecStop=rm -f $CATALINA_PID
+ExecStop=
 
 [Install]
 WantedBy=multi-user.target
