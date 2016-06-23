@@ -31,7 +31,7 @@ done
 DSPACE_VERSION="5.5"
 INSTALL_DIR="/opt"
 DSPACE_INSTALL="$INSTALL_DIR/dspace"
-APPLICATION_USER_DB_PASSWORD=$(openssl rand -base64 33)
+APPLICATION_USER_DB_PASSWORD=$(openssl rand -base64 33 | sed -e 's/\///g')
 APPLICATION_DB_NAME="dspace"
 APPLICATION_USER_HOME="/home/$APPLICATION_USER"
 # DSPACE_SOURCE="dspace-$DSPACE_VERSION-src-release"
@@ -78,6 +78,12 @@ else
   # prepare install location:
   # NOTE: at the moment, we are blowing away the build each time we run this script...
   # there may be merit in less drastic measures
+  # ...and in fact, there is...
+  # TODO: fix:
+  # if we don't need to create the db user (with a fresh password) above,
+  # when we blow away the build that persisted that working password
+  # in favor of a new one (with a new password), then the passwords get
+  # out-of-sync and the application can no longer connect to the db
   if [ -d "$DSPACE_INSTALL" ]; then
     sudo rm -rf $DSPACE_INSTALL
   fi
