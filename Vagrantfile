@@ -75,18 +75,13 @@ Vagrant.configure(2) do |config|
   # do minimal provisioning to set up
   config.vm.provision "prerequisites", type: "shell", path: "script/prereqs.sh"
 
+  # install prerequisites for the Mirage2 xmlui theme
+  config.vm.provision "mirage2 prerequisites", type: "shell", path: "script/prereqs_mirage2.sh"
+
   # install database (if not using external db server)
   config.vm.provision "db", type: "shell", path: "script/db.sh"
 
-  # --- EITHER: ---
-# run the following series only to build a dspace instance
-# begin: build series
-config.vm.provision "build dspace", type: "shell", path: "script/build_dspace.sh"
-# end: build series
+  # install dspace
+  config.vm.provision "build dspace", type: "shell", path: "script/build_dspace.sh"
 
-# --- OR: ---
-# run the following series to deploy a dspace instance from a git(hub) repo
-# begin: deploy series
-# config.vm.provision "deploy dspace", type: "shell", path: "script/deploy_dspace.sh"
-# end: deploy series
 end

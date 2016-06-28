@@ -37,7 +37,7 @@ APPLICATION_USER_HOME="/home/$APPLICATION_USER"
 # DSPACE_SOURCE="dspace-$DSPACE_VERSION-src-release"
 DSPACE_SOURCE="dspace-$DSPACE_VERSION"
 REPO="https://github.com/jhu-sheridan-libraries/DSpace.git"
-BRANCH="styling"
+BRANCH="test_style" #"styling"
 MAIL_SERVER="SMTP.CHANGEME.EDU"
 MAIL_ADMIN="CHANGEME@CHANGEME.EDU"
 ADMIN_EMAIL="ADMIN@CHANGEME.EDU"
@@ -136,11 +136,14 @@ else
     # Build the Installation Package
     echo "--> Building..."
     sudo chown -R $APPLICATION_USER: $DSPACE_SOURCE
-    sudo su - $APPLICATION_USER bash -c "cd $DSPACE_SOURCE && mvn package -Dmirage2.on=true"
+    sudo su - $APPLICATION_USER bash -c "cd $DSPACE_SOURCE && mvn package -Dmirage2.on=true -Dmirage2.deps.included=false"
 
     # install dspace
     echo "--> Installing..."
     sudo su - $APPLICATION_USER bash -c "cd $DSPACE_SOURCE/dspace/target/dspace-installer && ant fresh_install"
+
+    # TODO: sort this out...
+    # mv -f /opt/dspace/webapps/xmlui/themes/Mirage2/_bootstrap_variables.scss /opt/dspace/webapps/xmlui/themes/Mirage2/styles/classic_mirage_color_scheme/
 
     # deploy web applications
     echo "--> Deploying..."
@@ -148,6 +151,7 @@ else
     cd $CATALINA_HOME/webapps
     sudo rm -rf lni/ solr/ oai/ swordv2/ jspui/ sword/ xmlui/
     sudo cp -R $DSPACE_INSTALL/webapps/* $CATALINA_HOME/webapps
+    sudo chown -R $APPLICATION_USER: $CATALINA_HOME/webapps
   fi
 fi
 
