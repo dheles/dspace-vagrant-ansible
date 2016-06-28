@@ -180,7 +180,7 @@ Environment=TOMCAT_USER=$APPLICATION_USER
 Environment=JAVA_HOME=$JAVA_HOME
 Environment='JAVA_OPTS=-Djava.awt.headless=true -Dfile.encoding=UTF-8'
 Environment=CATALINA_HOME=$CATALINA_HOME
-Environment='CATALINA_OPTS=-Xms512M -Xmx1024M -XX:MaxPermSize=128m -server -XX:+UseParallelGC'
+Environment='CATALINA_OPTS=-Xms1024m -Xmx1024m -XX:MaxPermSize=512m -server -XX:+UseParallelGC'
 Environment=CATALINA_PID=$CATALINA_HOME/temp/tomcat.pid
 PIDFile=$CATALINA_HOME/temp/tomcat.pid
 
