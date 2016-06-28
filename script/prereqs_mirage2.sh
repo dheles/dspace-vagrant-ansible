@@ -33,46 +33,42 @@ INSTALL_DIR="/usr/local"
 # https://github.com/DSpace/DSpace/tree/master/dspace-xmlui-mirage2
 
 # git (no particular version)
-if git --version | grep version; then
+if git --version | grep "[[:digit:]]" ; then
   echo "--> git already installed, moving on."
 else
   echo "--> Installing git..."
   sudo yum install -y git
-  if git --version | grep version; then
+  if git --version | grep "[[:digit:]]" ; then
     echo "--> git now installed."
   else
     echo "ERROR: attempted to install git, but something went wrong"
   fi
 fi
 
-# ruby
-# NOTE: we don't really care beyond the major version
-RUBY_VERSION="2"
-if ruby -v | grep $RUBY_VERSION ; then
+# ruby (no particular version)
+if ruby -v | grep "[[:digit:]]" ; then
   echo "--> ruby already installed, moving on."
 else
   echo "--> Installing ruby..."
   sudo yum install -y ruby ruby-devel
-  if ruby -v | grep $RUBY_VERSION ; then
+  if ruby -v | grep "[[:digit:]]" ; then
     echo "--> ruby now installed."
   else
     echo "ERROR: attempted to install ruby, but something went wrong"
   fi
 fi
 
-# node
-# NOTE: we don't really care beyond the minor version
-NODE_VERSION="0.10"
-if node -v | grep $NODE_VERSION ; then
+# node (no particular version)
+if node -v | grep "[[:digit:]]" ; then
   echo "--> node already installed, moving on."
 else
-  echo "--> Installing node $NODE_VERSION..."
+  echo "--> Installing node..."
   sudo yum install -y epel-release
   sudo yum install -y nodejs npm --enablerepo=epel
-  if node -v | grep $NODE_VERSION ; then
+  if node -v | grep "[[:digit:]]" ; then
     echo "--> node now installed."
   else
-    echo "ERROR: attempted to install node $NODE_VERSION, but something went wrong"
+    echo "ERROR: attempted to install node, but something went wrong"
   fi
 fi
 
@@ -83,6 +79,7 @@ sudo su - $APPLICATION_USER bash -c "npm config set prefix $INSTALL_DIR"
 if [ ! -d "$(npm config get prefix)/lib/node_modules" ] ; then
   mkdir "$(npm config get prefix)/lib/node_modules"
 fi
+# NOTE: this proved inadequate:
 # sudo chown -R $APPLICATION_USER: $(npm config get prefix)/{lib/node_modules,bin,share}
 # ls -ltrah "$(npm config get prefix)/lib/node_modules"
 sudo chown -R $APPLICATION_USER: $INSTALL_DIR
@@ -94,10 +91,11 @@ echo -e "export PATH=\$PATH:\$GEM_HOME/bin"       | sudo tee -a /etc/profile.d/r
 source /etc/profile
 
 # install remaining prerequisites
-#https://github.com/DSpace/DSpace/tree/master/dspace-xmlui-mirage2
 npm update -g npm
+
 # bower
 sudo su - $APPLICATION_USER bash -c "npm install -g bower"
+
 # grunt
 # NOTE: grunt-cli really doesn't like being reinstalled and finding grunt already present
 # TODO: this doesn't appear to be working...
@@ -108,6 +106,7 @@ else
   sudo npm install -g grunt-cli
 fi
 sudo su - $APPLICATION_USER bash -c "npm install -g grunt"
+
 # sass & compass
 SASS_VERSION="3.3.14"
 sudo su - $APPLICATION_USER bash -c "gem install sass -v $SASS_VERSION --no-document"

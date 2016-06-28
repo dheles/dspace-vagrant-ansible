@@ -34,10 +34,15 @@ DSPACE_INSTALL="$INSTALL_DIR/dspace"
 APPLICATION_USER_DB_PASSWORD=$(openssl rand -base64 33 | sed -e 's/\///g')
 APPLICATION_DB_NAME="dspace"
 APPLICATION_USER_HOME="/home/$APPLICATION_USER"
+
+# to install from a release:
 # DSPACE_SOURCE="dspace-$DSPACE_VERSION-src-release"
+
+# to install from a repo:
 DSPACE_SOURCE="dspace-$DSPACE_VERSION"
 REPO="https://github.com/jhu-sheridan-libraries/DSpace.git"
-BRANCH="test_style" #"styling"
+BRANCH="JHU"
+
 MAIL_SERVER="SMTP.CHANGEME.EDU"
 MAIL_ADMIN="CHANGEME@CHANGEME.EDU"
 ADMIN_EMAIL="ADMIN@CHANGEME.EDU"
@@ -46,15 +51,12 @@ ADMIN_LASTNAME="ME"
 ADMIN_PASSWORD="CHANGEME"
 ADMIN_LANGUAGE="English"
 
-# TODO: figure out an appropriate check for this:
 if  $DSPACE_INSTALL/bin/dspace version | grep $DSPACE_VERSION ; then
   echo "--> dspace $DSPACE_VERSION already installed, moving on."
 else
   echo "--> Installing dspace $DSPACE_VERSION..."
-  # TODO: database setup
   # TODO: if this can and should be broken out into a separate script (e.g. for a remote DB), do so
   # configure database
-  # TODO: figure out an appropriate check for this:
   if $DSPACE_INSTALL/bin/dspace database test | grep "Connected successfully"; then
     echo "--> Database already configured, moving on."
   else
@@ -93,16 +95,17 @@ else
   # get the source, if we need it:
   cd $APPLICATION_USER_HOME
   if [ ! -d $DSPACE_SOURCE ]; then
+
     # NOTE: to get release, rather than repo:
     # wget -q https://github.com/DSpace/DSpace/releases/download/dspace-$DSPACE_VERSION/$DSPACE_SOURCE.tar.gz
     # tar -zxf $DSPACE_SOURCE.tar.gz
     # rm $DSPACE_SOURCE.tar.gz
+
     if [ ! -z "$BRANCH" ]; then
       BRANCH="--branch $BRANCH"
     fi
     echo "cloning: $REPO $BRANCH $DSPACE_SOURCE"
   	git clone $REPO $BRANCH $DSPACE_SOURCE
-    # TODO: necessary?
   	sudo chown -R $APPLICATION_USER: $DSPACE_SOURCE
   fi
   # make sure we have what we need before proceeding
@@ -141,9 +144,6 @@ else
     # install dspace
     echo "--> Installing..."
     sudo su - $APPLICATION_USER bash -c "cd $DSPACE_SOURCE/dspace/target/dspace-installer && ant fresh_install"
-
-    # TODO: sort this out...
-    # mv -f /opt/dspace/webapps/xmlui/themes/Mirage2/_bootstrap_variables.scss /opt/dspace/webapps/xmlui/themes/Mirage2/styles/classic_mirage_color_scheme/
 
     # deploy web applications
     echo "--> Deploying..."

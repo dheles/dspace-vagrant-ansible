@@ -27,7 +27,7 @@ while [ "$1" != "" ]; do
   shift
 done
 
-# postgres
+# install postgres. configuration happens later, to coincide with application config
 POSTGRES_VERSION="9.2.15"
 if pg_config --version | grep $POSTGRES_VERSION ; then
   echo "--> postgres $POSTGRES_VERSION already installed, moving on."

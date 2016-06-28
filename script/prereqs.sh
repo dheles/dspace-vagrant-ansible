@@ -50,10 +50,11 @@ sudo yum update -y
 # TODO: review list
 echo "--> Installing prereqs..."
 sudo yum install -y wget
-sudo yum install -y vim-enhanced
 sudo yum install -y unzip
 sudo yum install -y git
 sudo yum install -y epel-release
+# NOTE: just my personal preference, not actually required:
+sudo yum install -y vim-enhanced
 echo "--> prereqs are now installed."
 
 # set hostname
@@ -62,7 +63,6 @@ sudo hostnamectl set-hostname $HOSTNAME
 hostnamectl status
 
 # java
-# JAVA_VERSION="1.8.0"
 JAVA_VERSION="1.7.0"
 JAVA_HOME="/usr/lib/jvm/java"
 if java -version 2>&1 | grep -q $JAVA_VERSION; then
@@ -80,7 +80,6 @@ else
 fi
 
 # maven
-# MAVEN_VERSION="3.3.3"
 MAVEN_VERSION="3.3.9"
 if mvn -version | grep $MAVEN_VERSION ; then
   echo "--> maven $MAVEN_VERSION already installed, moving on."
@@ -140,7 +139,6 @@ fi
 sudo useradd -m -c "$APPLICATION_USER system account" $APPLICATION_USER
 
 # tomcat
-# TOMCAT_VERSION="8.5.2"
 TOMCAT_VERSION="8.0.35"
 CATALINA_HOME=$INSTALL_DIR/tomcat
 if sh $CATALINA_HOME/bin/version.sh | grep $TOMCAT_VERSION ; then
@@ -165,7 +163,7 @@ else
     # tomcat config
     sed -i -e '/<Connector port=\"8080\" protocol=\"HTTP\/1.1\"/ a\
     \           URIEncoding="UTF-8"' $CATALINA_HOME/conf/server.xml
-    # tomcat manager app; NOTE: not for production
+    # authorization for tomcat manager app; NOTE: not for production
     sed -i -e "/<\/tomcat-users>/ i\
     \  <role rolename=\"manager-gui\"\/> \n\  <user username=\"$TOMCAT_ADMIN\" password=\"$TOMCAT_ADMIN_PASSWORD\" roles=\"manager-gui\"\/>" $CATALINA_HOME/conf/tomcat-users.xml
     # systemd service configuration:
