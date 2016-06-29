@@ -57,10 +57,12 @@ sudo yum install -y epel-release
 sudo yum install -y vim-enhanced
 echo "--> prereqs are now installed."
 
-# set hostname
-echo "--> setting hostname"
-sudo hostnamectl set-hostname $HOSTNAME
-hostnamectl status
+# hostname
+echo "--> checking hostname"
+if ! hostnamectl status | grep $HOSTNAME ; then
+  sudo hostnamectl set-hostname $HOSTNAME
+  hostnamectl status
+fi
 
 # java
 JAVA_VERSION="1.7.0"

@@ -79,7 +79,7 @@ Vagrant.configure(2) do |config|
     # SHELL
 
     # do minimal provisioning to set up
-    # app.vm.provision "prerequisites", type: "shell", path: "script/prereqs.sh"
+    app.vm.provision "prerequisites", type: "shell", path: "script/prereqs.sh"
 
     # install prerequisites for the Mirage2 xmlui theme
     # app.vm.provision "mirage2 prerequisites", type: "shell", path: "script/prereqs_mirage2.sh"
