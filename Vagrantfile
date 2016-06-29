@@ -1,6 +1,9 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+require 'securerandom'
+DB_PASS="-p #{SecureRandom.base64(33).gsub(/\//,'')}"
+
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
 # configures the configuration version (we support older styles for
 # backwards compatibility). Please don't change it unless you know what
@@ -102,6 +105,11 @@ Vagrant.configure(2) do |config|
     # do minimal provisioning to set up
     db.vm.provision "db prerequisites", type: "shell", path: "script/db_prereqs.sh"
     db.vm.provision "db install", type: "shell", path: "script/db.sh"
+
+    DB_NAME="-d dspace"
+    DB_USER="-u dspace"
+    DB_ARGS = [DB_NAME, DB_USER, DB_PASS].join(" ")
+    db.vm.provision "db create", type: "shell", path: "script/db_create.sh", args: DB_ARGS
   end
 
 end
