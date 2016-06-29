@@ -28,7 +28,7 @@ while [ "$1" != "" ]; do
 done
 
 # install postgres. configuration happens later, to coincide with application config
-POSTGRES_VERSION="9.2.15"
+POSTGRES_VERSION="9.2" # heed only minor version
 if pg_config --version | grep $POSTGRES_VERSION ; then
   echo "--> postgres $POSTGRES_VERSION already installed, moving on."
 else
