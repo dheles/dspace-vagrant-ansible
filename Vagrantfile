@@ -2,7 +2,20 @@
 # vi: set ft=ruby :
 
 require 'securerandom'
-DB_PASS="-p #{SecureRandom.base64(33).gsub(/\//,'')}"
+domain          = "-d CHANGEME.EDU"
+db_ip           = "10.10.40.102"
+db_ip_arg       = "-di #{db_ip}"
+db_hostname     = "-dh dspace-5-db"
+db_name         = "-dn dspace"
+db_user         = "-du dspace"
+db_pass         = "-dp #{SecureRandom.base64(33).gsub(/[\/\:]/,'')}"
+app_ip          = "10.10.40.101"
+app_ip_arg      = "-ai #{app_ip}"
+app_hostname    = "-ah dspace-5-dev"
+app_user        = "-au dspace"
+tomcat_admin    = "-ta CHANGEME"
+tomcat_password = "-tp CHANGEME"
+
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
 # configures the configuration version (we support older styles for
@@ -10,106 +23,55 @@ DB_PASS="-p #{SecureRandom.base64(33).gsub(/\//,'')}"
 # you're doing.
 Vagrant.configure(2) do |config|
 
-  config.vm.define "app", primary: true do |app|
-    # The most common configuration options are documented and commented below.
-    # For a complete reference, please see the online documentation at
-    # https://docs.vagrantup.com.
-
-    # Every Vagrant development environment requires a box. You can search for
-    # boxes at https://atlas.hashicorp.com/search.
-    app.vm.box = "centos/7"
-
-    # Disable automatic box update checking. If you disable this, then
-    # boxes will only be checked for updates when the user runs
-    # `vagrant box outdated`. This is not recommended.
-    # config.vm.box_check_update = false
-
-    # Create a forwarded port mapping which allows access to a specific port
-    # within the machine from a port on the host machine. In the example below,
-    # accessing "localhost:8080" will access port 80 on the guest machine.
-    app.vm.network "forwarded_port", guest: 8080, host: 18080
-
-    # Create a private network, which allows host-only access to the machine
-    # using a specific IP.
-    # config.vm.network "private_network", ip: "192.168.33.10"
-    app.vm.network "private_network", ip: "192.168.40.101"
-
-    # Create a public network, which generally matched to bridged network.
-    # Bridged networks make the machine appear as another physical device on
-    # your network.
-    # config.vm.network "public_network"
-
-    # Share an additional folder to the guest VM. The first argument is
-    # the path on the host to the actual folder. The second argument is
-    # the path on the guest to mount the folder. And the optional third
-    # argument is a set of non-required options.
-    # config.vm.synced_folder "../data", "/vagrant_data"
-
-    # Provider-specific configuration so you can fine-tune various
-    # backing providers for Vagrant. These expose provider-specific options.
-    # Example for VirtualBox:
-    #
-    # config.vm.provider "virtualbox" do |vb|
-    #   # Display the VirtualBox GUI when booting the machine
-    #   vb.gui = true
-    #
-    #   # Customize the amount of memory on the VM:
-    #   vb.memory = "1024"
-    # end
-    #
-    # View the documentation for the provider you are using for more
-    # information on available options.
-    app.vm.provider "virtualbox" do |vb|
-      vb.name = "dspace_5_dev"
-    end
-
-    # Define a Vagrant Push strategy for pushing to Atlas. Other push strategies
-    # such as FTP and Heroku are also available. See the documentation at
-    # https://docs.vagrantup.com/v2/push/atlas.html for more information.
-    # config.push.define "atlas" do |push|
-    #   push.app = "YOUR_ATLAS_USERNAME/YOUR_APPLICATION_NAME"
-    # end
-
-    # Enable provisioning with a shell script. Additional provisioners such as
-    # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
-    # documentation for more information about their specific syntax and use.
-    # config.vm.provision "shell", inline: <<-SHELL
-    #   sudo apt-get update
-    #   sudo apt-get install -y apache2
-    # SHELL
-
-    # do minimal provisioning to set up
-    app.vm.provision "prerequisites", type: "shell", path: "script/prereqs.sh"
-
-    # install prerequisites for the Mirage2 xmlui theme
-    # app.vm.provision "mirage2 prerequisites", type: "shell", path: "script/prereqs_mirage2.sh"
-
-    # install database (if not using external db server)
-    # config.vm.provision "db", type: "shell", path: "script/db.sh"
-
-    # install dspace
-    # app.vm.provision "build dspace", type: "shell", path: "script/build_dspace.sh"
-
-  end
-
   config.vm.define "db" do |db|
     db.vm.box = "centos/7"
 
     db.vm.network "forwarded_port", guest: 5432, host: 15432
-    db.vm.network "private_network", ip: "192.168.40.102"
+    db.vm.network "private_network", ip: db_ip
 
     db.vm.provider "virtualbox" do |vb|
       vb.name = "dspace_5_db"
     end
 
-    # do minimal provisioning to set up
-    db.vm.provision "db prerequisites", type: "shell", path: "script/db_prereqs.sh"
-    db.vm.provision "db install", type: "shell", path: "script/db.sh"
+    db_pre_args = [db_hostname, domain].join(" ")
+    db.vm.provision "db prerequisites", type: "shell", path: "script/db_prereqs.sh", args: db_pre_args
 
-    DB_NAME="-d dspace"
-    DB_USER="-u dspace"
-    DB_ARGS = [DB_NAME, DB_USER, DB_PASS].join(" ")
-    db.vm.provision "db create", type: "shell", path: "script/db_create.sh", args: DB_ARGS
+    db_install_args = [db_name, db_user].join(" ")
+    db.vm.provision "db install", type: "shell", path: "script/db.sh", args: db_install_args
+
+    db_create_args = [db_name, db_user, db_pass].join(" ")
+    db.vm.provision "db create", type: "shell", path: "script/db_create.sh", args: db_create_args
+  end
+
+  config.vm.define "app", primary: true do |app|
+    app.vm.box = "centos/7"
+
+    app.vm.network "forwarded_port", guest: 8080, host: 18080
+    app.vm.network "private_network", ip: app_ip
+
+    app.vm.provider "virtualbox" do |vb|
+      vb.name = "dspace_5_dev"
+    end
+
+    # do minimal provisioning to set up
+    app_pre_args = [app_user, tomcat_admin, tomcat_password, app_hostname, domain].join(" ")
+    app.vm.provision "prerequisites", type: "shell", path: "script/prereqs.sh", args: app_pre_args
+
+    # install prerequisites for the Mirage2 xmlui theme
+    app_mirage_pre_args = [app_user].join(" ")
+    app.vm.provision "mirage2 prerequisites", type: "shell", path: "script/prereqs_mirage2.sh", args: app_mirage_pre_args
+
+    # install database (if not using external db server)
+    # config.vm.provision "db", type: "shell", path: "script/db.sh"
+
+    # install and configure database client for external db server
+    db_client_args = [db_ip_arg, db_hostname, domain, db_name, db_user, db_pass, app_user].join(" ")
+    app.vm.provision "db client", type: "shell", path: "script/db_client.sh", args: db_client_args
+
+    # install dspace
+    app_build_args = [app_user, db_hostname, domain, db_name, db_user, db_pass].join(" ")
+    app.vm.provision "build dspace", type: "shell", path: "script/build_dspace.sh", args: app_build_args
+
   end
 
 end

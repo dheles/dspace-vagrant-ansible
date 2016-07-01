@@ -2,20 +2,16 @@
 
 function usage
 {
-  echo "usage: prereqs_mirage2 [[[-a ADMIN ] [-u APPLICATION_USER] | [-h]]"
+  echo "usage: prereqs_mirage2 [[[-au APPLICATION_USER] | [-h]]"
 }
 
 # set defaults:
-ADMIN="vagrant"
 APPLICATION_USER="dspace"
 
 # process arguments:
 while [ "$1" != "" ]; do
   case $1 in
-    -a | --admin )            shift
-                              ADMIN=$1
-                              ;;
-    -u | --user )             shift
+    -au | --user )             shift
                               APPLICATION_USER=$1
                               ;;
     -h | --help )             usage
@@ -93,23 +89,55 @@ source /etc/profile
 # install remaining prerequisites
 npm update -g npm
 
-# bower
-sudo su - $APPLICATION_USER bash -c "npm install -g bower"
+# bower (no particular version)
+if sudo su - $APPLICATION_USER bash -c "bower -v" | grep "[[:digit:]]" ; then
+  echo "--> bower already installed, moving on."
+else
+  sudo su - $APPLICATION_USER bash -c "npm install -g bower"
+  if sudo su - $APPLICATION_USER bash -c "bower -" | grep "[[:digit:]]" ; then
+    echo "--> bower installed"
+  else
+    echo "ERROR: attempted to install bower, but something went wrong"
+  fi
+fi
 
 # grunt
 # NOTE: grunt-cli really doesn't like being reinstalled and finding grunt already present
-# TODO: this doesn't appear to be working...
-if grunt --version | grep "[[:digit:]]" ; then
+# TODO: this doesn't appear to be working to prevent reinstall...
+if sudo su - $APPLICATION_USER bash -c "grunt --version" | grep "[[:digit:]]" ; then
   echo "--> grunt-cli already installed, moving on."
 else
   echo "--> Installing grunt-cli"
   sudo npm install -g grunt-cli
+  if sudo su - $APPLICATION_USER bash -c "grunt --version" | grep "[[:digit:]]" ; then
+    echo "--> grunt-cli installed"
+  else
+    echo "ERROR: attempted to install grunt-cli, but something went wrong"
+  fi
 fi
-sudo su - $APPLICATION_USER bash -c "npm install -g grunt"
+# TODO: confirm this is not needed:
+# sudo su - $APPLICATION_USER bash -c "npm install -g grunt"
 
 # sass & compass
 SASS_VERSION="3.3.14"
-sudo su - $APPLICATION_USER bash -c "gem install sass -v $SASS_VERSION --no-document"
+if sudo su - $APPLICATION_USER bash -c "sass -v" | grep $SASS_VERSION ; then
+  echo "--> sass already installed, moving on."
+else
+  sudo su - $APPLICATION_USER bash -c "gem install sass -v $SASS_VERSION --no-document"
+  if sudo su - $APPLICATION_USER bash -c "sass -v" | grep $SASS_VERSION ; then
+    echo "--> sass installed"
+  else
+    echo "ERROR: attempted to install sass, but something went wrong"
+  fi
+fi
 COMPASS_VERSION="1.0.1"
-sudo su - $APPLICATION_USER bash -c "gem install compass -v $COMPASS_VERSION --no-document"
-sudo su - $APPLICATION_USER bash -c "compass -v"
+if sudo su - $APPLICATION_USER bash -c "compass -v" | grep $COMPASS_VERSION ; then
+  echo "--> compass already installed, moving on."
+else
+  sudo su - $APPLICATION_USER bash -c "gem install compass -v $COMPASS_VERSION --no-document"
+  if sudo su - $APPLICATION_USER bash -c "compass -v" | grep $COMPASS_VERSION ; then
+    echo "--> compass installed"
+  else
+    echo "ERROR: attempted to install compass, but something went wrong"
+  fi
+fi

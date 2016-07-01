@@ -2,33 +2,37 @@
 
 function usage
 {
-  echo "usage: test [[[-u USERNAME] [-p PASSWORD]] | [-h]]"
+  echo "usage: test [[[-dn DB_NAME] [-au USER] [-ap PASSWORD]] | [-h]]"
 }
 
 # set defaults:
-USERNAME="CHANGE_MY_USERNAME"
+DB_NAME="CHANGE_MY_DB_NAME"
+USER="CHANGE_MY_USERNAME"
 PASSWORD="CHANGE_MY_PASSWORD"
 
 # process arguments:
 while [ "$1" != "" ]; do
   case $1 in
-    -u | --user )             shift
-                              USERNAME=$1
-                              ;;
-    -p | --password )  shift
-                              PASSWORD=$1
-                              ;;
-    -h | --help )             usage
-                              exit
-                              ;;
-    * )                       usage
-                              exit 1
+    -dn | --db )         shift
+                        DB_NAME=$1
+                        ;;
+    -du | --user )       shift
+                        USER=$1
+                        ;;
+    -dp | --password )   shift
+                        PASSWORD=$1
+                        ;;
+    -h | --help )       usage
+                        exit
+                        ;;
+    * )                 usage
+                        exit 1
   esac
   shift
 done
 
 echo "--> Configuring..."
-echo "the password for $USERNAME is $PASSWORD"
+echo "the password for user $USER in the $DB_NAME database is $PASSWORD"
 echo "was that supposed to be a secret?"
 echo "oops."
 echo "--> ...Done Configuring"

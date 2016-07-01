@@ -2,25 +2,21 @@
 
 function usage
 {
-  echo "usage: db_prereqs [[[-a ADMIN ] [-u APPLICATION_USER] [-t TOMCAT_ADMIN] [-p TOMCAT_ADMIN_PASSWORD] [-n HOSTNAME]] | [-h]]"
+  echo "usage: db_prereqs [[[-dh HOSTNAME] [-d DOMAIN]] | [-h]]"
 }
 
 # set defaults:
-ADMIN="vagrant"
-APPLICATION_USER="dspace"
-HOSTNAME="DB.CHANGEME.EDU"
+HOSTNAME="DB"
+DOMAIN="CHANGEME.EDU"
 
 # process arguments:
 while [ "$1" != "" ]; do
   case $1 in
-    -a | --admin )            shift
-                              ADMIN=$1
-                              ;;
-    -u | --user )             shift
-                              APPLICATION_USER=$1
-                              ;;
-    -n | --hostname )         shift
+    -dh | --hostname )         shift
                               HOSTNAME=$1
+                              ;;
+    -d | --domain )           shift
+                              DOMAIN=$1
                               ;;
     -h | --help )             usage
                               exit
@@ -32,8 +28,7 @@ while [ "$1" != "" ]; do
 done
 
 # set remaining vars
-ADMIN_HOME="/home/$ADMIN"
-INSTALL_DIR="/usr/local"
+FQDN="$HOSTNAME.$DOMAIN"
 
 sudo yum update -y
 
@@ -46,7 +41,7 @@ echo "--> prereqs are now installed."
 
 # hostname
 echo "--> checking hostname"
-if ! hostnamectl status | grep $HOSTNAME ; then
-  sudo hostnamectl set-hostname $HOSTNAME
+if ! hostnamectl status | grep $FQDN ; then
+  sudo hostnamectl set-hostname $FQDN
   hostnamectl status
 fi

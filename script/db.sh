@@ -2,27 +2,27 @@
 
 function usage
 {
-  echo "usage: db [[[-a ADMIN ] [-u APPLICATION_USER]] | [-h]]"
+  echo "usage: db [[[-dn DB_NAME] [-du DB_USER]] | [-h]]"
 }
 
 # set defaults:
-ADMIN="vagrant"
-APPLICATION_USER="dspace"
+DB_NAME="dspace"
+DB_USER="dspace"
 
 # process arguments:
 while [ "$1" != "" ]; do
   case $1 in
-    -a | --admin )    shift
-                      ADMIN=$1
-                      ;;
-    -u | --user )     shift
-                      APPLICATION_USER=$1
-                      ;;
-    -h | --help )     usage
-                      exit
-                      ;;
-    * )               usage
-                      exit 1
+    -dn | --db_name )   shift
+                        DB_NAME=$1
+                        ;;
+    -du | --db_user )   shift
+                        DB_USER=$1
+                        ;;
+    -h | --help )       usage
+                        exit
+                        ;;
+    * )                 usage
+                        exit 1
   esac
   shift
 done
@@ -36,7 +36,24 @@ else
 	sudo yum install -y postgresql-server
 	sudo postgresql-setup initdb
 
-  echo -e "local\tall\tpostgres\tident\nhost\tdspace\tdspace\t127.0.0.1/32\tmd5" | sudo tee /var/lib/pgsql/data/pg_hba.conf
+  # TODO: review:
+  POSTGRES_AUTHENTICATION=$(cat <<-EOF
+local   all       postgres    ident
+host    $DB_NAME  $DB_USER    0.0.0.0/0    md5
+
+EOF
+  )
+  echo "$POSTGRES_AUTHENTICATION" | sudo tee /var/lib/pgsql/data/pg_hba.conf
+  # echo -e "local\tall\tpostgres\tident\nhost\tdspace\tdspace\t127.0.0.1/32\tmd5" | sudo tee /var/lib/pgsql/data/pg_hba.conf
+
+  # TODO: review:
+  POSTGRES_CONFIG=$(cat <<-EOF
+
+listen_addresses = '*'
+
+EOF
+  )
+  echo "$POSTGRES_CONFIG" | sudo tee -a /var/lib/pgsql/data/postgresql.conf
 
 	sudo systemctl enable postgresql.service
 	sudo systemctl start postgresql.service

@@ -2,33 +2,33 @@
 
 function usage
 {
-  echo "usage: prereqs [[[-a ADMIN ] [-u APPLICATION_USER] [-t TOMCAT_ADMIN] [-p TOMCAT_ADMIN_PASSWORD] [-n HOSTNAME]] | [-h]]"
+  echo "usage: prereqs [[[-au APPLICATION_USER] [-ta TOMCAT_ADMIN] [-tp TOMCAT_ADMIN_PASSWORD] [-ah HOSTNAME] [-d DOMAIN]] | [-h]]"
 }
 
 # set defaults:
-ADMIN="vagrant"
 APPLICATION_USER="dspace"
 TOMCAT_ADMIN="CHANGEME"
 TOMCAT_ADMIN_PASSWORD="CHANGEME"
-HOSTNAME="DSPACE.CHANGEME.EDU"
+HOSTNAME="DSPACE"
+DOMAIN="CHANGEME.EDU"
 
 # process arguments:
 while [ "$1" != "" ]; do
   case $1 in
-    -a | --admin )            shift
-                              ADMIN=$1
-                              ;;
-    -u | --user )             shift
+    -au | --user )             shift
                               APPLICATION_USER=$1
                               ;;
-    -t | --tomcat_admin )     shift
+    -ta | --tomcat_admin )     shift
                               TOMCAT_ADMIN=$1
                               ;;
-    -p | --tomcat_password )  shift
+    -tp | --tomcat_password )  shift
                               TOMCAT_ADMIN_PASSWORD=$1
                               ;;
-    -n | --hostname )         shift
+    -ah | --hostname )         shift
                               HOSTNAME=$1
+                              ;;
+    -d | --domain )           shift
+                              DOMAIN=$1
                               ;;
     -h | --help )             usage
                               exit
@@ -40,9 +40,9 @@ while [ "$1" != "" ]; do
 done
 
 # set remaining vars
-ADMIN_HOME="/home/$ADMIN"
 APACHE_MIRROR="http://mirror.cc.columbia.edu/pub/software/apache"
 INSTALL_DIR="/usr/local"
+FQDN="$HOSTNAME.$DOMAIN"
 
 sudo yum update -y
 
@@ -59,8 +59,8 @@ echo "--> prereqs are now installed."
 
 # hostname
 echo "--> checking hostname"
-if ! hostnamectl status | grep $HOSTNAME ; then
-  sudo hostnamectl set-hostname $HOSTNAME
+if ! hostnamectl status | grep $FQDN ; then
+  sudo hostnamectl set-hostname $FQDN
   hostnamectl status
 fi
 
