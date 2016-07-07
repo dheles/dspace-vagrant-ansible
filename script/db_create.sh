@@ -2,7 +2,7 @@
 
 function usage
 {
-  echo "usage: db_config [[[-dn DB_NAME] [-du DB_USER] [-dp DB_PASSWORD]] | [-h]]"
+  echo "usage: db_create [[[-dn DB_NAME] [-du DB_USER] [-dp DB_PASSWORD]] | [-h]]"
 }
 
 # set defaults:

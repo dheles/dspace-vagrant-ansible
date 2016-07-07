@@ -2,7 +2,7 @@
 
 function usage
 {
-  echo "usage: db [[[-dn DB_NAME] [-du DB_USER]] | [-h]]"
+  echo "usage: db_install [[[-dn DB_NAME] [-du DB_USER]] | [-h]]"
 }
 
 # set defaults:
