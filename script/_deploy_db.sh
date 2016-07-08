@@ -5,15 +5,16 @@
 
 function usage
 {
-  echo "usage: _deploy_db [[[-dh HOSTNAME] [-d DOMAIN] [-dn DB_NAME] [-du DB_USER] [-dp DB_PASSWORD]] | [-h]]"
+  echo "usage: _deploy_db [[[-dh HOSTNAME] [-d DOMAIN] [-dn DB_NAME] [-du DB_USER] [-dp DB_PASSWORD] [-di DB_IP]] | [-h]]"
 }
 
 # set defaults:
 HOSTNAME="DB"
 DOMAIN="CHANGEME.EDU"
+DB_IP="192.168.1.102"
 DB_NAME="dspace"
 DB_USER="dspace"
-DB_PASS="CHANGE_MY_PASSWORD"
+DB_PASS=$(openssl rand -base64 33 | sed -e 's/[\/\:]//g')
 
 # process arguments:
 while [ "$1" != "" ]; do
@@ -23,6 +24,9 @@ while [ "$1" != "" ]; do
                         ;;
     -d | --domain )     shift
                         DOMAIN=$1
+                        ;;
+    -di | --db_ip )     shift
+                        DB_IP=$1
                         ;;
     -dn | --db_name )   shift
                         DB_NAME=$1
@@ -43,7 +47,7 @@ while [ "$1" != "" ]; do
 done
 
 #db prerequisites
-bash db_prereqs.sh -dh $HOSTNAME -d $DOMAIN
+bash db_prereqs.sh -dh $HOSTNAME -d $DOMAIN -di $DB_IP
 
 # db install
 bash db_install.sh -dn $DB_NAME -du $DB_USER

@@ -57,7 +57,7 @@ sudo yum install -y postgresql
 
 # hosts file
 if ! grep $DB_IP /etc/hosts ; then
-  echo "$DB_IP $DB_HOSTNAME $DB_FQDN" | sudo tee -a /etc/hosts
+  echo "$DB_IP $DB_FQDN $DB_HOSTNAME" | sudo tee -a /etc/hosts
 fi
 
 # .pgpass

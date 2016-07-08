@@ -2,7 +2,7 @@
 
 function usage
 {
-  echo "usage: prereqs [[[-au APPLICATION_USER] [-ta TOMCAT_ADMIN] [-tp TOMCAT_ADMIN_PASSWORD] [-ah HOSTNAME] [-d DOMAIN]] | [-h]]"
+  echo "usage: prereqs [[[-au APPLICATION_USER] [-ta TOMCAT_ADMIN] [-tp TOMCAT_ADMIN_PASSWORD] [-ah HOSTNAME] [-d DOMAIN] [-ai IP]] | [-h]]"
 }
 
 # set defaults:
@@ -11,24 +11,28 @@ TOMCAT_ADMIN="CHANGEME"
 TOMCAT_ADMIN_PASSWORD="CHANGEME"
 HOSTNAME="DSPACE"
 DOMAIN="CHANGEME.EDU"
+IP="10.10.40.101"
 
 # process arguments:
 while [ "$1" != "" ]; do
   case $1 in
-    -au | --user )             shift
+    -au | --user )            shift
                               APPLICATION_USER=$1
                               ;;
-    -ta | --tomcat_admin )     shift
+    -ta | --tomcat_admin )    shift
                               TOMCAT_ADMIN=$1
                               ;;
-    -tp | --tomcat_password )  shift
+    -tp | --tomcat_password ) shift
                               TOMCAT_ADMIN_PASSWORD=$1
                               ;;
-    -ah | --hostname )         shift
+    -ah | --hostname )        shift
                               HOSTNAME=$1
                               ;;
     -d | --domain )           shift
                               DOMAIN=$1
+                              ;;
+    -ai | --ip )              shift
+                              IP=$1
                               ;;
     -h | --help )             usage
                               exit
@@ -62,6 +66,10 @@ echo "--> checking hostname"
 if ! hostnamectl status | grep $FQDN ; then
   sudo hostnamectl set-hostname $FQDN
   hostnamectl status
+fi
+# hosts file
+if ! grep $IP /etc/hosts ; then
+  echo "$IP $FQDN $HOSTNAME" | sudo tee -a /etc/hosts
 fi
 
 # java
@@ -141,7 +149,7 @@ fi
 sudo useradd -m -c "$APPLICATION_USER system account" $APPLICATION_USER
 
 # tomcat
-TOMCAT_VERSION="8.0.35"
+TOMCAT_VERSION="8.0.36"
 CATALINA_HOME=$INSTALL_DIR/tomcat
 if sh $CATALINA_HOME/bin/version.sh | grep $TOMCAT_VERSION ; then
   echo "--> tomcat $TOMCAT_VERSION already installed, moving on."

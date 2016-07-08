@@ -5,22 +5,21 @@
 
 function usage
 {
-  echo "usage: _deploy_app [[-au APPLICATION_USER] [-ta TOMCAT_ADMIN] [-tp TOMCAT_ADMIN_PASSWORD] [-ah APP_HOSTNAME] [-d DOMAIN]
-                            [-di DB_IP] [-dh DB_HOSTNAME] [-dn DB_NAME] [-du DB_USER] [-dp DB_PASSWORD]] | [-h]]"
+  echo "usage: _deploy_app [[-au APPLICATION_USER] [-ta TOMCAT_ADMIN] [-tp TOMCAT_ADMIN_PASSWORD] [-ah APP_HOSTNAME] [-d DOMAIN] [-ai APP_IP] [-di DB_IP] [-dh DB_HOSTNAME] [-dn DB_NAME] [-du DB_USER] [-dp DB_PASSWORD]] | [-h]]"
 }
 
 # set defaults:
 APPLICATION_USER="dspace"
 TOMCAT_ADMIN="CHANGEME"
 TOMCAT_ADMIN_PASSWORD="CHANGEME"
+APP_IP="192.168.1.101"
 APP_HOSTNAME="DSPACE"
 DOMAIN="CHANGEME.EDU"
-DB_IP="192.168.1.101"
+DB_IP="192.168.1.102"
 DB_HOSTNAME="DB"
-DOMAIN="CHANGEME.EDU"
 DB_NAME="dspace"
 DB_USER="dspace"
-DB_PASS="CHANGE_MY_PASSWORD"
+DB_PASS=$(openssl rand -base64 33 | sed -e 's/[\/\:]//g')
 
 # process arguments:
 while [ "$1" != "" ]; do
@@ -33,6 +32,9 @@ while [ "$1" != "" ]; do
                               ;;
     -tp | --tomcat_password ) shift
                               TOMCAT_ADMIN_PASSWORD=$1
+                              ;;
+    -ai | --app_ip )          shift
+                              APP_IP=$1
                               ;;
     -ah | --app_hostname )    shift
                               APP_HOSTNAME=$1
@@ -65,13 +67,22 @@ while [ "$1" != "" ]; do
 done
 
 # prerequisites
-bash prereqs.sh -au $APPLICATION_USER -ta $TOMCAT_ADMIN -tp $TOMCAT_ADMIN_PASSWORD -ah $APP_HOSTNAME -d $DOMAIN
+bash prereqs.sh -au $APPLICATION_USER -ta $TOMCAT_ADMIN -tp $TOMCAT_ADMIN_PASSWORD -ah $APP_HOSTNAME -d $DOMAIN -ai $APP_IP
 
 # install prerequisites for the Mirage2 xmlui theme
 bash prereqs_mirage2.sh -au $APPLICATION_USER
 
-# install and configure database client for external db server
-bash db_client.sh -di $DB_IP -dh $DB_HOSTNAME -d $DOMAIN -dn $DB_NAME -du $DB_USER -dp $DB_PASSWORD -au $APPLICATION_USER
+# -- EITHER --
+
+  # install database (if not using external db server)
+  bash db_install.sh  -dn $DB_NAME -du $DB_USER
+  # db create
+  bash db_create.sh -dn $DB_NAME -du $DB_USER -dp $DB_PASS
+
+# --- OR ---
+
+  # install and configure database client for external db server
+  # bash db_client.sh -di $DB_IP -dh $DB_HOSTNAME -d $DOMAIN -dn $DB_NAME -du $DB_USER -dp $DB_PASSWORD -au $APPLICATION_USER
 
 # install dspace
 bash build_dspace.sh -au $APPLICATION_USER -dh $DB_HOSTNAME -d $DOMAIN -dn $DB_NAME -du $DB_USER -dp $DB_PASS

@@ -2,21 +2,25 @@
 
 function usage
 {
-  echo "usage: db_prereqs [[[-dh HOSTNAME] [-d DOMAIN]] | [-h]]"
+  echo "usage: db_prereqs [[[-dh HOSTNAME] [-d DOMAIN] [-ai IP]] | [-h]]"
 }
 
 # set defaults:
 HOSTNAME="DB"
 DOMAIN="CHANGEME.EDU"
+IP="10.10.40.102"
 
 # process arguments:
 while [ "$1" != "" ]; do
   case $1 in
-    -dh | --hostname )         shift
+    -dh | --hostname )        shift
                               HOSTNAME=$1
                               ;;
     -d | --domain )           shift
                               DOMAIN=$1
+                              ;;
+    -di | --ip )              shift
+                              IP=$1
                               ;;
     -h | --help )             usage
                               exit
@@ -44,4 +48,8 @@ echo "--> checking hostname"
 if ! hostnamectl status | grep $FQDN ; then
   sudo hostnamectl set-hostname $FQDN
   hostnamectl status
+fi
+# hosts file
+if ! grep $IP /etc/hosts ; then
+  echo "$IP $FQDN $HOSTNAME" | sudo tee -a /etc/hosts
 fi

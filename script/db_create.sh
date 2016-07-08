@@ -8,11 +8,7 @@ function usage
 # set defaults:
 DB_NAME="dspace"
 DB_USER="dspace"
-DB_PASS="CHANGE_MY_PASSWORD"
-# since we are now provisioning db creation and application configuration separately,
-# generating random passwords in the provisioning scripts will no longer work;
-# we now generate them in the calling (vagrant) script
-# DB_PASS=$(openssl rand -base64 33 | sed -e 's/\///g')
+DB_PASS=$(openssl rand -base64 33 | sed -e 's/[\/\:]//g')
 
 # process arguments:
 while [ "$1" != "" ]; do
@@ -55,6 +51,16 @@ else
 
   # create the database
   sudo su - postgres bash -c "createdb -O $DB_USER --encoding=UNICODE $DB_NAME;"
+
+  # TODO: review:
+  # persist DB_PASS in .pgpass
+  if grep "localhost" ~/.pgpass ; then
+    echo "--> pgpass already configured"
+  else
+    PG_CRED="localhost:*:$DB_NAME:$DB_USER:$DB_PASS"
+    echo $PG_CRED | sudo tee ~/.pgpass > /dev/null
+    sudo chmod 0600 ~/.pgpass
+  fi
 
   if sudo su - postgres bash -c "psql -l" | grep $DB_NAME ; then
     echo "--> Database now created."

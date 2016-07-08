@@ -61,8 +61,11 @@ DSPACE_SOURCE="dspace-$DSPACE_VERSION"
 REPO="https://github.com/jhu-sheridan-libraries/DSpace.git"
 BRANCH="JHU"
 
-
-DB_FQDN="$DB_HOSTNAME.$DOMAIN"
+if  echo $DB_HOSTNAME | grep "localhost" ; then
+  DB_FQDN=$DB_HOSTNAME
+else
+  DB_FQDN="$DB_HOSTNAME.$DOMAIN"
+fi
 # TODO: parameterize
 DB_PORT="5432"
 DB_URL="jdbc:postgresql://$DB_FQDN:$DB_PORT/$DB_NAME"
