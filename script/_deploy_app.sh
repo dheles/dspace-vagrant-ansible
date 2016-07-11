@@ -12,10 +12,10 @@ function usage
 APPLICATION_USER="dspace"
 TOMCAT_ADMIN="CHANGEME"
 TOMCAT_ADMIN_PASSWORD="CHANGEME"
-APP_IP="192.168.1.101"
+APP_IP="10.10.40.101"
 APP_HOSTNAME="DSPACE"
 DOMAIN="CHANGEME.EDU"
-DB_IP="192.168.1.102"
+DB_IP="10.10.40.102"
 DB_HOSTNAME="DB"
 DB_NAME="dspace"
 DB_USER="dspace"
@@ -74,16 +74,16 @@ bash prereqs_mirage2.sh -au $APPLICATION_USER
 
 # -- EITHER --
 
-  # install database (if not using external db server)
-  DB_HOSTNAME="localhost" # this will be needful when configuring dspace below
-  bash db_install.sh  -dn $DB_NAME -du $DB_USER
-  # db create
-  bash db_create.sh -dn $DB_NAME -du $DB_USER -dp $DB_PASS
+  # # install database (if not using external db server)
+  # DB_HOSTNAME="localhost" # this will be needful when configuring dspace below
+  # bash db_install.sh  -dn $DB_NAME -du $DB_USER
+  # # db create
+  # bash db_create.sh -dn $DB_NAME -du $DB_USER -dp $DB_PASS
 
 # --- OR ---
 
   # install and configure database client for external db server
-  # bash db_client.sh -di $DB_IP -dh $DB_HOSTNAME -d $DOMAIN -dn $DB_NAME -du $DB_USER -dp $DB_PASSWORD -au $APPLICATION_USER
+  bash db_client.sh -di $DB_IP -dh $DB_HOSTNAME -d $DOMAIN -dn $DB_NAME -du $DB_USER -dp $DB_PASS -au $APPLICATION_USER
 
 # install dspace
 bash build_dspace.sh -au $APPLICATION_USER -dh $DB_HOSTNAME -d $DOMAIN -dn $DB_NAME -du $DB_USER -dp $DB_PASS

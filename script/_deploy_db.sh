@@ -11,7 +11,7 @@ function usage
 # set defaults:
 HOSTNAME="DB"
 DOMAIN="CHANGEME.EDU"
-DB_IP="192.168.1.102"
+DB_IP="10.10.40.102"
 DB_NAME="dspace"
 DB_USER="dspace"
 DB_PASS=$(openssl rand -base64 33 | sed -e 's/[\/\:]//g')
