@@ -61,12 +61,16 @@ Vagrant.configure(2) do |config|
     app_mirage_pre_args = [app_user].join(" ")
     app.vm.provision "mirage2 prerequisites", type: "shell", path: "script/prereqs_mirage2.sh", args: app_mirage_pre_args
 
-    # install database (if not using external db server)
-    db_hostname = "-dh localhost" # this will be needful when configuring dspace below
-    db_install_args = [db_name, db_user].join(" ")
-    app.vm.provision "db install", type: "shell", path: "script/db_install.sh", args: db_install_args
-    db_create_args = [db_name, db_user, db_pass].join(" ")
-    app.vm.provision "db create", type: "shell", path: "script/db_create.sh", args: db_create_args
+    # -- EITHER --
+
+      # install database (if not using external db server)
+      db_hostname = "-dh localhost" # this will be needful when configuring dspace below
+      db_install_args = [db_name, db_user].join(" ")
+      app.vm.provision "db install", type: "shell", path: "script/db_install.sh", args: db_install_args
+      db_create_args = [db_name, db_user, db_pass].join(" ")
+      app.vm.provision "db create", type: "shell", path: "script/db_create.sh", args: db_create_args
+
+    # --- OR ---
 
         # install and configure database client for external db server
         # db_client_args = [db_ip_arg, db_hostname, domain, db_name, db_user, db_pass, app_user].join(" ")

@@ -75,6 +75,7 @@ bash prereqs_mirage2.sh -au $APPLICATION_USER
 # -- EITHER --
 
   # install database (if not using external db server)
+  DB_HOSTNAME="localhost" # this will be needful when configuring dspace below
   bash db_install.sh  -dn $DB_NAME -du $DB_USER
   # db create
   bash db_create.sh -dn $DB_NAME -du $DB_USER -dp $DB_PASS
