@@ -46,8 +46,11 @@ while [ "$1" != "" ]; do
   shift
 done
 
-#db prerequisites
+# db prerequisites
 bash db_prereqs.sh -dh $HOSTNAME -d $DOMAIN -di $DB_IP
+
+# configure firewall
+bash db_firewall.sh
 
 # db install
 bash db_install.sh -dn $DB_NAME -du $DB_USER

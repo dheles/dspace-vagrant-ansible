@@ -69,6 +69,9 @@ done
 # prerequisites
 bash prereqs.sh -au $APPLICATION_USER -ta $TOMCAT_ADMIN -tp $TOMCAT_ADMIN_PASSWORD -ah $APP_HOSTNAME -d $DOMAIN -ai $APP_IP
 
+# configure firewall
+bash app_firewall.sh
+
 # install prerequisites for the Mirage2 xmlui theme
 bash prereqs_mirage2.sh -au $APPLICATION_USER
 
