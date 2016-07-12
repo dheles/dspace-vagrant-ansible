@@ -23,25 +23,27 @@ tomcat_password = "-tp CHANGEME"
 # you're doing.
 Vagrant.configure(2) do |config|
 
-  # config.vm.define "db" do |db|
-  #   db.vm.box = "centos/7"
-  #
-  #   db.vm.network "forwarded_port", guest: 5432, host: 15432
-  #   db.vm.network "private_network", ip: db_ip
-  #
-  #   db.vm.provider "virtualbox" do |vb|
-  #     vb.name = "dspace_5_db"
-  #   end
-  #
-  #   db_pre_args = [db_hostname, domain, db_ip_arg].join(" ")
-  #   db.vm.provision "db prerequisites", type: "shell", path: "script/db_prereqs.sh", args: db_pre_args
-  #
-  #   db_install_args = [db_name, db_user].join(" ")
-  #   db.vm.provision "db install", type: "shell", path: "script/db_install.sh", args: db_install_args
-  #
-  #   db_create_args = [db_name, db_user, db_pass].join(" ")
-  #   db.vm.provision "db create", type: "shell", path: "script/db_create.sh", args: db_create_args
-  # end
+  config.vm.define "db" do |db|
+    db.vm.box = "centos/7"
+
+    db.vm.network "forwarded_port", guest: 5432, host: 15432
+    db.vm.network "private_network", ip: db_ip
+
+    db.vm.provider "virtualbox" do |vb|
+      vb.name = "dspace_5_db"
+    end
+
+    db_pre_args = [db_hostname, domain, db_ip_arg].join(" ")
+    db.vm.provision "db prerequisites", type: "shell", path: "script/db_prereqs.sh", args: db_pre_args
+
+    db.vm.provision "db firewall", type: "shell", path: "script/db_firewall.sh"
+
+    db_install_args = [db_name, db_user].join(" ")
+    db.vm.provision "db install", type: "shell", path: "script/db_install.sh", args: db_install_args
+
+    db_create_args = [db_name, db_user, db_pass].join(" ")
+    db.vm.provision "db create", type: "shell", path: "script/db_create.sh", args: db_create_args
+  end
 
   config.vm.define "app", primary: true do |app|
     app.vm.box = "centos/7"
@@ -57,24 +59,27 @@ Vagrant.configure(2) do |config|
     app_pre_args = [app_user, tomcat_admin, tomcat_password, app_hostname, domain, app_ip_arg].join(" ")
     app.vm.provision "prerequisites", type: "shell", path: "script/prereqs.sh", args: app_pre_args
 
+    # configure firewall
+    app.vm.provision "app firewall", type: "shell", path: "script/app_firewall.sh"
+
     # install prerequisites for the Mirage2 xmlui theme
     app_mirage_pre_args = [app_user].join(" ")
     app.vm.provision "mirage2 prerequisites", type: "shell", path: "script/prereqs_mirage2.sh", args: app_mirage_pre_args
 
     # -- EITHER --
 
-      # install database (if not using external db server)
-      db_hostname = "-dh localhost" # this will be needful when configuring dspace below
-      db_install_args = [db_name, db_user].join(" ")
-      app.vm.provision "db install", type: "shell", path: "script/db_install.sh", args: db_install_args
-      db_create_args = [db_name, db_user, db_pass].join(" ")
-      app.vm.provision "db create", type: "shell", path: "script/db_create.sh", args: db_create_args
+      # # install database (if not using external db server)
+      # db_hostname = "-dh localhost" # this will be needful when configuring dspace below
+      # db_install_args = [db_name, db_user].join(" ")
+      # app.vm.provision "db install", type: "shell", path: "script/db_install.sh", args: db_install_args
+      # db_create_args = [db_name, db_user, db_pass].join(" ")
+      # app.vm.provision "db create", type: "shell", path: "script/db_create.sh", args: db_create_args
 
     # --- OR ---
 
         # install and configure database client for external db server
-        # db_client_args = [db_ip_arg, db_hostname, domain, db_name, db_user, db_pass, app_user].join(" ")
-        # app.vm.provision "db client", type: "shell", path: "script/db_client.sh", args: db_client_args
+        db_client_args = [db_ip_arg, db_hostname, domain, db_name, db_user, db_pass, app_user].join(" ")
+        app.vm.provision "db client", type: "shell", path: "script/db_client.sh", args: db_client_args
 
     # install dspace
     app_build_args = [app_user, db_hostname, domain, db_name, db_user, db_pass].join(" ")
