@@ -1,0 +1,3 @@
+[submodule "script/anonymize-dspace"]
+	path = script/anonymize-dspace
+	url = https://github.com/dheles/anonymize-dspace.git
