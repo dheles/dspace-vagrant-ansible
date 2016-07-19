@@ -27,6 +27,7 @@ firewall-cmd --state
 if [ $? -eq 0 ] ; then
   echo "--> firewall now installed."
   firewall-cmd --zone=public --add-service={http,https} --permanent && echo "--> http(s) services added to firewall" || echo "$ERROR_MSG adding http(s) services"
+  firewall-cmd --zone=public --add-port=8080/tcp --permanent && echo "--> port 8080 added to firewall" || echo "$ERROR_MSG adding port 8080"
   firewall-cmd --reload && echo "--> firewall configured" || echo "$ERROR_MSG during reload"
   firewall-cmd --zone=public --list-all
 else
