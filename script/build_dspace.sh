@@ -82,33 +82,8 @@ if  $DSPACE_INSTALL/bin/dspace version | grep $DSPACE_VERSION ; then
 else
   echo "--> Building and installing dspace $DSPACE_VERSION..."
 
-  # TODO: cleanup:
-  # # TODO: if this can and should be broken out into a separate script (e.g. for a remote DB), do so
-  # # configure database
-  # if $DSPACE_INSTALL/bin/dspace database test | grep "Connected successfully"; then
-  #   echo "--> Database already configured, moving on."
-  # else
-  #   echo "--> Configuring database..."
-  #
-  #   # TODO: use or lose...
-  #
-  # 	# # drop the databases and user in case they already exist. i damn potent.
-  # 	# sudo su - postgres bash -c "dropdb $DB_NAME;"
-  # 	# sudo su - postgres bash -c "psql -c \"DROP USER IF EXISTS $APPLICATION_USER;\""
-  #   #
-  #   # # create the database user
-  # 	# sudo su - postgres bash -c "psql -c \"CREATE USER $APPLICATION_USER WITH CREATEDB PASSWORD '$APPLICATION_USER_DB_PASSWORD';\""
-  #   #
-  # 	# # create the database
-  # 	# sudo su - postgres bash -c "createdb -O $APPLICATION_USER --encoding=UNICODE $DB_NAME;"
-  #   #
-  #   # # TODO: consider persisting db credentials in environment vars
-  #
-  #   echo "--> Database now configured."
-  # fi
-
   PRESERVE_BUILD=true
-  if [ $PRESERVE_BUILD ] && [ -d "$DSPACE_INSTALL" ] ; then
+  if $PRESERVE_BUILD && [ -d "$DSPACE_INSTALL" ] ; then
     echo "--> dspace already built, moving on."
 
     # until we get pgpass working, we still need to sync DB_PASS in the installer

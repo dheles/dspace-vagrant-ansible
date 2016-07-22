@@ -31,11 +31,37 @@ while [ "$1" != "" ]; do
   shift
 done
 
-echo "--> Configuring..."
-echo "the password for user $USER in the $DB_NAME database is $PASSWORD"
-echo "was that supposed to be a secret?"
-echo "oops."
-echo "--> ...Done Configuring"
+# PRESERVE_BUILD=false
+# DSPACE_INSTALL=true
+# echo "PRESERVE_BUILD=$PRESERVE_BUILD"
+# echo "DSPACE_INSTALL=$DSPACE_INSTALL"
+# if [ $PRESERVE_BUILD ] && [ $DSPACE_INSTALL ] ; then
+#   echo "wtf"
+# else
+#   echo "that's what i thought"
+# fi
+
+ASSETSTORE_ARRAY=("/mnt/dspace/storage/assetstore" "/mnt/dspace/storage/assetstore1/")
+for index in ${!ASSETSTORE_ARRAY[*]}
+do
+  if [ $index -eq 0 ] ; then
+    sed -i '' 's|^assetstore.dir *=.*|assetstore.dir='"${ASSETSTORE_ARRAY[$index]}"'|' build.properties
+  else
+    additional_assetstore_setting="assetstore.dir.$index=${ASSETSTORE_ARRAY[$index]}"
+    # sed -i '' 's|^'"$additional_assetstore_setting"'|''|' build.properties
+    # awk "!/$additional_assetstore_setting/" build.properties > temp && mv temp build.properties
+    grep -v "$additional_assetstore_setting" build.properties > temp && mv temp build.properties
+    sed -i '' -e '/^assetstore.dir *=.*/ a\
+    '"${additional_assetstore_setting}"'' build.properties
+    true
+  fi
+done
+
+# echo "--> Configuring..."
+# echo "the password for user $USER in the $DB_NAME database is $PASSWORD"
+# echo "was that supposed to be a secret?"
+# echo "oops."
+# echo "--> ...Done Configuring"
 
 # test
 
