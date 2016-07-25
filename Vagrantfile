@@ -94,6 +94,10 @@ Vagrant.configure(2) do |config|
       app_build_args = [app_user, db_hostname, domain, db_name, db_user, db_pass].join(" ")
       app.vm.provision "build dspace", type: "shell", path: "script/build_dspace.sh", args: app_build_args
 
+      # apache
+      app_apache_args = [app_hostname, domain].join(" ")
+      app.vm.provision "apache", type: "shell", path: "script/app_apache.sh", args: app_apache_args
+
     # part 2 - update
     # NOTE: part 1 (db and app) must be complete before running part 2
     # NOTE: be sure to turn off the app (sudo systemctl stop tomcat) before restoring the database

@@ -172,10 +172,36 @@ else
   # deploy web applications
   echo "--> Deploying..."
   CATALINA_HOME=/usr/local/tomcat
-  cd $CATALINA_HOME/webapps
-  sudo rm -rf lni/ solr/ oai/ swordv2/ jspui/ sword/ xmlui/
-  sudo cp -R $DSPACE_INSTALL/webapps/* $CATALINA_HOME/webapps
-  sudo chown -R $APPLICATION_USER: $CATALINA_HOME/webapps
+  # NOTE: the first app in the array will be configured as the root context
+  APP_ARRAY=("xmlui" "solr" "oai" "rdf" "rest" "sword" "swordv2")
+  RELOADABLE="true"
+  CACHINGALLOWED="false"
+  # TODO: parameterize
+  PRODUCTION=false
+  if $PRODUCTION ; then
+    RELOADABLE="false"
+    CACHINGALLOWED="true"
+  fi
+  for index in ${!APP_ARRAY[*]}
+  do
+    echo "--> Configuring ${APP_ARRAY[$index]}..."
+  	app_conf=$(cat <<-EOF
+<?xml version='1.0'?>
+<Context
+  docBase="$DSPACE_INSTALL/webapps/${APP_ARRAY[$index]}"
+  reloadable="$RELOADABLE"
+  cachingAllowed="$CACHINGALLOWED"/>
+EOF
+    )
+    app_conf_filename="${APP_ARRAY[$index]}.xml"
+    if [ $index -eq 0 ] ; then
+      app_conf_filename="ROOT.xml"
+    fi
+    echo "$app_conf" | sudo tee $CATALINA_HOME/conf/Catalina/localhost/$app_conf_filename
+  done
+  sudo chown -R $APPLICATION_USER: $CATALINA_HOME/conf/Catalina/localhost/
+
+  sudo systemctl restart tomcat
 
 fi
 

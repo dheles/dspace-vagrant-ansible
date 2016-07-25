@@ -31,6 +31,38 @@ while [ "$1" != "" ]; do
   shift
 done
 
+DSPACE_INSTALL="/opt/dspace"
+CATALINA_HOME="/usr/local/tomcat"
+# NOTE: the first app in the array will be configured as the root context
+APP_ARRAY=("xmlui" "solr" "oai" "rdf" "rest" "sword" "swordv2")
+RELOADABLE="true"
+CACHINGALLOWED="false"
+# TODO: parameterize
+PRODUCTION=false
+if $PRODUCTION ; then
+  RELOADABLE="false"
+  CACHINGALLOWED="true"
+fi
+for index in ${!APP_ARRAY[*]}
+do
+  echo "--> Configuring ${APP_ARRAY[$index]}..."
+  app_conf=$(cat <<-EOF
+<?xml version='1.0'?>
+<Context
+  docBase="$DSPACE_INSTALL/webapps/${APP_ARRAY[$index]}"
+  reloadable="$RELOADABLE"
+  cachingAllowed="$CACHINGALLOWED"/>
+EOF
+  )
+  app_conf_filename="${APP_ARRAY[$index]}.xml"
+  if [ $index -eq 0 ] ; then
+    app_conf_filename="ROOT.xml"
+  fi
+  echo "$app_conf" | sudo tee $CATALINA_HOME/conf/Catalina/localhost/$app_conf_filename
+done
+APPLICATION_USER="dspace"
+sudo chown -R $APPLICATION_USER: $CATALINA_HOME/conf/Catalina/localhost/
+
 # PRESERVE_BUILD=false
 # DSPACE_INSTALL=true
 # echo "PRESERVE_BUILD=$PRESERVE_BUILD"
@@ -41,21 +73,21 @@ done
 #   echo "that's what i thought"
 # fi
 
-ASSETSTORE_ARRAY=("/mnt/dspace/storage/assetstore" "/mnt/dspace/storage/assetstore1/")
-for index in ${!ASSETSTORE_ARRAY[*]}
-do
-  if [ $index -eq 0 ] ; then
-    sed -i '' 's|^assetstore.dir *=.*|assetstore.dir='"${ASSETSTORE_ARRAY[$index]}"'|' build.properties
-  else
-    additional_assetstore_setting="assetstore.dir.$index=${ASSETSTORE_ARRAY[$index]}"
-    # sed -i '' 's|^'"$additional_assetstore_setting"'|''|' build.properties
-    # awk "!/$additional_assetstore_setting/" build.properties > temp && mv temp build.properties
-    grep -v "$additional_assetstore_setting" build.properties > temp && mv temp build.properties
-    sed -i '' -e '/^assetstore.dir *=.*/ a\
-    '"${additional_assetstore_setting}"'' build.properties
-    true
-  fi
-done
+# ASSETSTORE_ARRAY=("/mnt/dspace/storage/assetstore" "/mnt/dspace/storage/assetstore1/")
+# for index in ${!ASSETSTORE_ARRAY[*]}
+# do
+#   if [ $index -eq 0 ] ; then
+#     sed -i '' 's|^assetstore.dir *=.*|assetstore.dir='"${ASSETSTORE_ARRAY[$index]}"'|' build.properties
+#   else
+#     additional_assetstore_setting="assetstore.dir.$index=${ASSETSTORE_ARRAY[$index]}"
+#     # sed -i '' 's|^'"$additional_assetstore_setting"'|''|' build.properties
+#     # awk "!/$additional_assetstore_setting/" build.properties > temp && mv temp build.properties
+#     grep -v "$additional_assetstore_setting" build.properties > temp && mv temp build.properties
+#     sed -i '' -e '/^assetstore.dir *=.*/ a\
+#     '"${additional_assetstore_setting}"'' build.properties
+#     true
+#   fi
+# done
 
 # echo "--> Configuring..."
 # echo "the password for user $USER in the $DB_NAME database is $PASSWORD"
