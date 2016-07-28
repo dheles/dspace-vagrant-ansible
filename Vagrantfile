@@ -68,6 +68,10 @@ Vagrant.configure(2) do |config|
       app_pre_args = [app_user, tomcat_admin, tomcat_password, app_hostname, domain, app_ip_arg].join(" ")
       app.vm.provision "prerequisites", type: "shell", path: "script/prereqs.sh", args: app_pre_args
 
+      # psi-probe
+      app_probe_args = [app_user, tomcat_admin, tomcat_password].join(" ")
+      app.vm.provision "psi-probe", type: "shell", path: "script/app_psi-probe.sh", args: app_probe_args
+
       # configure firewall
       app.vm.provision "app firewall", type: "shell", path: "script/app_firewall.sh"
 

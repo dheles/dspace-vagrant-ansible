@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-# TODO: test (and remove the comments expressing uncertainty...)
 # TODO: SSL (https 443)
 
 function usage
@@ -65,9 +64,9 @@ else
 EOF
 	)
 
-	# TODO: test
 	echo "$app_conf" | sudo tee /etc/httpd/conf.d/$APP_HOSTNAME.conf
 
 	sudo systemctl restart httpd
+  sudo systemctl status httpd
   # TODO: figure out how to return something to confirm it all worked...
 fi

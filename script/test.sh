@@ -31,37 +31,54 @@ while [ "$1" != "" ]; do
   shift
 done
 
-DSPACE_INSTALL="/opt/dspace"
-CATALINA_HOME="/usr/local/tomcat"
-# NOTE: the first app in the array will be configured as the root context
-APP_ARRAY=("xmlui" "solr" "oai" "rdf" "rest" "sword" "swordv2")
-RELOADABLE="true"
-CACHINGALLOWED="false"
-# TODO: parameterize
-PRODUCTION=false
-if $PRODUCTION ; then
-  RELOADABLE="false"
-  CACHINGALLOWED="true"
-fi
-for index in ${!APP_ARRAY[*]}
+TOMCAT_ADMIN="CHANGEME"
+TOMCAT_ADMIN_PASSWORD="CHANGEME"
+ROLES_CONFIG="test.txt"
+ROLE_ARRAY=("probeuser" "poweruser" "poweruserplus" "manager-gui")
+for index in ${!ROLE_ARRAY[*]}
 do
-  echo "--> Configuring ${APP_ARRAY[$index]}..."
-  app_conf=$(cat <<-EOF
-<?xml version='1.0'?>
-<Context
-  docBase="$DSPACE_INSTALL/webapps/${APP_ARRAY[$index]}"
-  reloadable="$RELOADABLE"
-  cachingAllowed="$CACHINGALLOWED"/>
-EOF
-  )
-  app_conf_filename="${APP_ARRAY[$index]}.xml"
-  if [ $index -eq 0 ] ; then
-    app_conf_filename="ROOT.xml"
+  if ! grep -q rolename=\"${ROLE_ARRAY[$index]} $ROLES_CONFIG ; then
+    sed -i '' -e '/<\/tomcat-users>/ i\
+    \  <role rolename=\"'${ROLE_ARRAY[$index]}'\"\/>' $ROLES_CONFIG
   fi
-  echo "$app_conf" | sudo tee $CATALINA_HOME/conf/Catalina/localhost/$app_conf_filename
 done
-APPLICATION_USER="dspace"
-sudo chown -R $APPLICATION_USER: $CATALINA_HOME/conf/Catalina/localhost/
+
+if ! grep -q username=\"$TOMCAT_ADMIN $ROLES_CONFIG ; then
+  sed -i '' -e '/<\/tomcat-users>/ i\
+  \  <user username=\"'$TOMCAT_ADMIN'\" password=\"'$TOMCAT_ADMIN_PASSWORD'\" roles=\"manager-gui\"\/>' $ROLES_CONFIG
+fi
+
+# DSPACE_INSTALL="/opt/dspace"
+# CATALINA_HOME="/usr/local/tomcat"
+# # NOTE: the first app in the array will be configured as the root context
+# APP_ARRAY=("xmlui" "solr" "oai" "rdf" "rest" "sword" "swordv2")
+# RELOADABLE="true"
+# CACHINGALLOWED="false"
+# # TODO: parameterize
+# PRODUCTION=false
+# if $PRODUCTION ; then
+#   RELOADABLE="false"
+#   CACHINGALLOWED="true"
+# fi
+# for index in ${!APP_ARRAY[*]}
+# do
+#   echo "--> Configuring ${APP_ARRAY[$index]}..."
+#   app_conf=$(cat <<-EOF
+# <?xml version='1.0'?>
+# <Context
+#   docBase="$DSPACE_INSTALL/webapps/${APP_ARRAY[$index]}"
+#   reloadable="$RELOADABLE"
+#   cachingAllowed="$CACHINGALLOWED"/>
+# EOF
+#   )
+#   app_conf_filename="${APP_ARRAY[$index]}.xml"
+#   if [ $index -eq 0 ] ; then
+#     app_conf_filename="ROOT.xml"
+#   fi
+#   echo "$app_conf" | sudo tee $CATALINA_HOME/conf/Catalina/localhost/$app_conf_filename
+# done
+# APPLICATION_USER="dspace"
+# sudo chown -R $APPLICATION_USER: $CATALINA_HOME/conf/Catalina/localhost/
 
 # PRESERVE_BUILD=false
 # DSPACE_INSTALL=true

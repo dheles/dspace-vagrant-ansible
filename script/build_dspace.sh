@@ -215,6 +215,7 @@ if true ; then
   echo "--> Initializing..."
   $DSPACE_INSTALL/bin/dspace database info
   $DSPACE_INSTALL/bin/dspace database migrate
+  $DSPACE_INSTALL/bin/dspace database info
 
   # add administrator account
   $DSPACE_INSTALL/bin/dspace create-administrator -e $ADMIN_EMAIL -f $ADMIN_FIRSTNAME -l $ADMIN_LASTNAME -c $ADMIN_LANGUAGE -p $ADMIN_PASSWORD

@@ -69,6 +69,9 @@ done
 # prerequisites
 bash prereqs.sh -au $APPLICATION_USER -ta $TOMCAT_ADMIN -tp $TOMCAT_ADMIN_PASSWORD -ah $APP_HOSTNAME -d $DOMAIN -ai $APP_IP
 
+# psi-probe
+bash app_psi-probe.sh -au $APPLICATION_USER -ta $TOMCAT_ADMIN -tp $TOMCAT_ADMIN_PASSWORD
+
 # configure firewall
 bash app_firewall.sh
 
@@ -90,3 +93,6 @@ bash prereqs_mirage2.sh -au $APPLICATION_USER
 
 # install dspace
 bash build_dspace.sh -au $APPLICATION_USER -dh $DB_HOSTNAME -d $DOMAIN -dn $DB_NAME -du $DB_USER -dp $DB_PASS
+
+# apache
+bash app_apache.sh -ah $APP_HOSTNAME -d $DOMAIN
