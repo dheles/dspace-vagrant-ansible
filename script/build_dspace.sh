@@ -2,7 +2,7 @@
 
 function usage
 {
-  echo "usage: build_dspace [[[-au APPLICATION_USER] [-dh DB_HOSTNAME] [-d DOMAIN] [-dn DB_NAME] [-du DB_USER] [-dp DB_PASSWORD]] | [-h]]"
+  echo "usage: build_dspace [[[-au APPLICATION_USER] [-dh DB_HOSTNAME] [-d DOMAIN] [-dn DB_NAME] [-du DB_USER] [-dp DB_PASSWORD]] [-ai IP]] | [-h]]"
 }
 
 # set defaults:
@@ -16,6 +16,7 @@ DB_PASS="CHANGE_MY_PASSWORD"
 # generating random passwords in the provisioning scripts will no longer work;
 # we now generate one in the calling (vagrant) script and *must* pass it in
 # DB_PASS=$(openssl rand -base64 33 | sed -e 's/\///g')
+IP="10.10.40.101"
 
 # process arguments:
 while [ "$1" != "" ]; do
@@ -37,6 +38,9 @@ while [ "$1" != "" ]; do
                         ;;
     -dp | --db_pass )   shift
                         DB_PASS=$1
+                        ;;
+    -ai | --ip )        shift
+                        IP=$1
                         ;;
     -h | --help )       usage
                         exit
@@ -172,6 +176,8 @@ else
   # deploy web applications
   echo "--> Deploying..."
   CATALINA_HOME=/usr/local/tomcat
+  # split IP into octets
+  IFS=. read IP1 IP2 IP3 IP4 <<< "$IP"
   # NOTE: the first app in the array will be configured as the root context
   APP_ARRAY=("xmlui" "solr" "oai" "rdf" "rest" "sword" "swordv2")
   RELOADABLE="true"
@@ -185,12 +191,24 @@ else
   for index in ${!APP_ARRAY[*]}
   do
     echo "--> Configuring ${APP_ARRAY[$index]}..."
+    close_context="/>"
+    # configure solr context to be accessible only to IPs in its subnet
+    # TODO: review for production
+    if [ "${APP_ARRAY[$index]}" = "solr" ] ; then
+      close_context=$(cat <<-EOF
+>
+  <Valve className="org.apache.catalina.valves.RemoteAddrValve" allow="127\.0\.0\.1|$IP1\.$IP2\.$IP3\..*"/>
+  <Parameter name="LocalHostRestrictionFilter.localhost" value="false" override="false" />
+</Context>
+EOF
+      )
+    fi
   	app_conf=$(cat <<-EOF
 <?xml version='1.0'?>
 <Context
   docBase="$DSPACE_INSTALL/webapps/${APP_ARRAY[$index]}"
   reloadable="$RELOADABLE"
-  cachingAllowed="$CACHINGALLOWED"/>
+  cachingAllowed="$CACHINGALLOWED" $close_context
 EOF
     )
     app_conf_filename="${APP_ARRAY[$index]}.xml"

@@ -45,12 +45,12 @@ Vagrant.configure(2) do |config|
       db_create_args = [db_name, db_user, db_pass].join(" ")
       db.vm.provision "db create", type: "shell", path: "script/db_create.sh", args: db_create_args
 
-    # part 2 - update
-    # NOTE: part 1 (db and app) must be complete before running part 2
-    # NOTE: be sure to turn off the app (sudo systemctl stop tomcat) before restoring the database
-    # TODO: segment this in a less confusing way
-      # db.vm.provision "file", source: "db_backup/anon_dump.sql", destination: "db_backup/anon_dump.sql"
-      # db.vm.provision "db restore", type: "shell", path: "script/db_restore.sh"
+    # # part 2 - update
+    # # NOTE: part 1 (db and app) must be complete before running part 2
+    # # NOTE: be sure to turn off the app (sudo systemctl stop tomcat) before restoring the database
+    # # TODO: segment this in a less confusing way
+    #   db.vm.provision "file", source: "db_backup/anon_dump.sql", destination: "db_backup/anon_dump.sql"
+    #   db.vm.provision "db restore", type: "shell", path: "script/db_restore.sh"
   end
 
   config.vm.define "app", primary: true do |app|
@@ -95,18 +95,18 @@ Vagrant.configure(2) do |config|
           app.vm.provision "db client", type: "shell", path: "script/db_client.sh", args: db_client_args
 
       # install dspace
-      app_build_args = [app_user, db_hostname, domain, db_name, db_user, db_pass].join(" ")
+      app_build_args = [app_user, db_hostname, domain, db_name, db_user, db_pass, app_ip_arg].join(" ")
       app.vm.provision "build dspace", type: "shell", path: "script/build_dspace.sh", args: app_build_args
 
       # apache
       app_apache_args = [app_hostname, domain].join(" ")
       app.vm.provision "apache", type: "shell", path: "script/app_apache.sh", args: app_apache_args
 
-    # part 2 - update
-    # NOTE: part 1 (db and app) must be complete before running part 2
-    # NOTE: be sure to turn off the app (sudo systemctl stop tomcat) before restoring the database
-    # TODO: segment this in a less confusing way
-      # app.vm.provision "db upgrade", type: "shell", path: "script/db_upgrade.sh"
+    # # part 2 - update
+    # # NOTE: part 1 (db and app) must be complete before running part 2
+    # # NOTE: be sure to turn off the app (sudo systemctl stop tomcat) before restoring the database
+    # # TODO: segment this in a less confusing way
+    #   app.vm.provision "db upgrade", type: "shell", path: "script/db_upgrade.sh"
 
   end
 
