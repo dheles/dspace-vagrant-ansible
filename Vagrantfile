@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 
 require 'securerandom'
-domain          = "-d CHANGEME.EDU"
+domain          = "-d changeme.edu"
 db_ip           = "10.10.40.102"
 db_ip_arg       = "-di #{db_ip}"
 db_hostname     = "-dh dspace-5-db"
@@ -61,6 +61,7 @@ Vagrant.configure(2) do |config|
 
     app.vm.provider "virtualbox" do |vb|
       vb.name = "dspace_5_dev"
+      vb.memory = 2048
     end
 
     # part 1 - install &/or deploy
@@ -95,7 +96,7 @@ Vagrant.configure(2) do |config|
           app.vm.provision "db client", type: "shell", path: "script/db_client.sh", args: db_client_args
 
       # install dspace
-      app_build_args = [app_user, db_hostname, domain, db_name, db_user, db_pass, app_ip_arg].join(" ")
+      app_build_args = [app_user, db_hostname, domain, db_name, db_user, db_pass, app_ip_arg, app_hostname].join(" ")
       app.vm.provision "build dspace", type: "shell", path: "script/build_dspace.sh", args: app_build_args
 
       # apache

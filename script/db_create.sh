@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# TODO: adjust this to create .pgpass in admin home, rather than root
+
 function usage
 {
   echo "usage: db_create [[[-dn DB_NAME] [-du DB_USER] [-dp DB_PASSWORD]] | [-h]]"

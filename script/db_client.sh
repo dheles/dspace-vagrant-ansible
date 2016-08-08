@@ -8,7 +8,7 @@ function usage
 # set defaults:
 DB_IP="192.168.1.101"
 DB_HOSTNAME="DB"
-DOMAIN="CHANGEME.EDU"
+DOMAIN="changeme.edu"
 DB_NAME="dspace"
 DB_USER="dspace"
 DB_PASS="CHANGE_MY_PASSWORD"

@@ -9,8 +9,8 @@ function usage
 }
 
 # set defaults:
-HOSTNAME="DB"
-DOMAIN="CHANGEME.EDU"
+HOSTNAME="db"
+DOMAIN="changeme.edu"
 DB_IP="10.10.40.102"
 DB_NAME="dspace"
 DB_USER="dspace"

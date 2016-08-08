@@ -13,8 +13,8 @@ APPLICATION_USER="dspace"
 TOMCAT_ADMIN="CHANGEME"
 TOMCAT_ADMIN_PASSWORD="CHANGEME"
 APP_IP="10.10.40.101"
-APP_HOSTNAME="DSPACE"
-DOMAIN="CHANGEME.EDU"
+APP_HOSTNAME="dspace"
+DOMAIN="changeme.edu"
 DB_IP="10.10.40.102"
 DB_HOSTNAME="DB"
 DB_NAME="dspace"
@@ -92,7 +92,7 @@ bash prereqs_mirage2.sh -au $APPLICATION_USER
   bash db_client.sh -di $DB_IP -dh $DB_HOSTNAME -d $DOMAIN -dn $DB_NAME -du $DB_USER -dp $DB_PASS -au $APPLICATION_USER
 
 # install dspace
-bash build_dspace.sh -au $APPLICATION_USER -dh $DB_HOSTNAME -d $DOMAIN -dn $DB_NAME -du $DB_USER -dp $DB_PASS
+bash build_dspace.sh -au $APPLICATION_USER -dh $DB_HOSTNAME -d $DOMAIN -dn $DB_NAME -du $DB_USER -dp $DB_PASS -ai $APP_IP -ah $APP_HOSTNAME
 
 # apache
 bash app_apache.sh -ah $APP_HOSTNAME -d $DOMAIN

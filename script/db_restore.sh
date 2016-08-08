@@ -19,7 +19,6 @@ ADMIN="vagrant"
 DB_NAME="dspace"
 DB_USER="dspace"
 DSPACE_VERSION="5.5"
-BACKUP_FILENAME="dspace_fresh_install.sql"
 BACKUP_FILENAME="dspace-$DSPACE_VERSION-fresh_install.sql"
 RESTORE_FILENAME="anon_dump.sql"
 

@@ -7,7 +7,7 @@ function usage
 
 # set defaults:
 HOSTNAME="DB"
-DOMAIN="CHANGEME.EDU"
+DOMAIN="changeme.edu"
 IP="10.10.40.102"
 
 # process arguments:

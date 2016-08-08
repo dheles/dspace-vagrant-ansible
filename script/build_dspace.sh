@@ -2,13 +2,13 @@
 
 function usage
 {
-  echo "usage: build_dspace [[[-au APPLICATION_USER] [-dh DB_HOSTNAME] [-d DOMAIN] [-dn DB_NAME] [-du DB_USER] [-dp DB_PASSWORD]] [-ai IP]] | [-h]]"
+  echo "usage: build_dspace [[[-au APPLICATION_USER] [-dh DB_HOSTNAME] [-d DOMAIN] [-dn DB_NAME] [-du DB_USER] [-dp DB_PASSWORD]] [-ai IP]] [-ah HOSTNAME] | [-h]]"
 }
 
 # set defaults:
 APPLICATION_USER="dspace"
-DB_HOSTNAME="DB"
-DOMAIN="CHANGEME.EDU"
+DB_HOSTNAME="db"
+DOMAIN="changeme.edu"
 DB_NAME="dspace"
 DB_USER="dspace"
 DB_PASS="CHANGE_MY_PASSWORD"
@@ -17,36 +17,40 @@ DB_PASS="CHANGE_MY_PASSWORD"
 # we now generate one in the calling (vagrant) script and *must* pass it in
 # DB_PASS=$(openssl rand -base64 33 | sed -e 's/\///g')
 IP="10.10.40.101"
+APP_HOSTNAME="dspace"
 
 # process arguments:
 while [ "$1" != "" ]; do
   case $1 in
-    -au | --app_user )  shift
-                        APPLICATION_USER=$1
-                        ;;
-    -dh | --hostname )  shift
-                        DB_HOSTNAME=$1
-                        ;;
-    -d | --domain )     shift
-                        DOMAIN=$1
-                        ;;
-    -dn | --db_name )   shift
-                        DB_NAME=$1
-                        ;;
-    -du | --db_user )   shift
-                        DB_USER=$1
-                        ;;
-    -dp | --db_pass )   shift
-                        DB_PASS=$1
-                        ;;
-    -ai | --ip )        shift
-                        IP=$1
-                        ;;
-    -h | --help )       usage
-                        exit
-                        ;;
-    * )                 usage
-                        exit 1
+    -au | --app_user )      shift
+                            APPLICATION_USER=$1
+                            ;;
+    -dh | --hostname )      shift
+                            DB_HOSTNAME=$1
+                            ;;
+    -d | --domain )         shift
+                            DOMAIN=$1
+                            ;;
+    -dn | --db_name )       shift
+                            DB_NAME=$1
+                            ;;
+    -du | --db_user )       shift
+                            DB_USER=$1
+                            ;;
+    -dp | --db_pass )       shift
+                            DB_PASS=$1
+                            ;;
+    -ai | --ip )            shift
+                            IP=$1
+                            ;;
+    -ah | --app_hostname )  shift
+                            APP_HOSTNAME=$1
+                            ;;
+    -h | --help )           usage
+                            exit
+                            ;;
+    * )                     usage
+                            exit 1
   esac
   shift
 done
@@ -139,8 +143,20 @@ else
 
       # initial configuration:
       echo "--> Configuring build..."
+      if  echo $APP_HOSTNAME | grep "localhost" ; then
+        APP_FQDN=$APP_HOSTNAME
+      else
+        APP_FQDN="$APP_HOSTNAME.$DOMAIN"
+      fi
       pushd $DSPACE_SOURCE
         sed -i 's|^dspace.install.dir.*|dspace.install.dir='"$DSPACE_INSTALL"'|' build.properties
+        sed -i 's|^dspace.hostname.*|dspace.hostname='"$APP_HOSTNAME"'|' build.properties
+        # NOTE: port number is unneeded due to configuration elsewhere
+        PORT="" # ":8080"
+        sed -i 's|^dspace.baseUrl.*|dspace.baseUrl='"http://$APP_FQDN$PORT"'|' build.properties
+        # NOTE: deploying as the container root, so dspace.ui setting not needed in the url
+        sed -i 's|^dspace.url.*|dspace.url=\$\{dspace.baseUrl\}|' build.properties
+        sed -i 's/^mail.alert.recipient.*/mail.alert.recipient=\$\{mail.admin\}/' build.properties
         sed -i 's/^dspace.name.*/dspace.name=JScholarship \(DSpace '"$DSPACE_VERSION"' - Build\)/' build.properties
         sed -i 's|^db.url.*|db.url='"$DB_URL"'|' build.properties
         sed -i 's/^db.username.*/db.username='"$DB_USER"'/' build.properties

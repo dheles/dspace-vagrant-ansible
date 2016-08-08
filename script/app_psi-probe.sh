@@ -93,4 +93,5 @@ APP_CONFIG=$CATALINA_HOME/conf/Catalina/localhost/$APP_NAME.xml
 echo "$app_conf" | sudo tee $APP_CONFIG
 sudo chown -R $APPLICATION_USER: $APP_CONFIG
 
+sudo systemctl daemon-reload
 sudo systemctl start tomcat
