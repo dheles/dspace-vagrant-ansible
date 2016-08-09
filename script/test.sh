@@ -63,13 +63,12 @@ fi
 for index in ${!APP_ARRAY[*]}
 do
   echo "--> Configuring ${APP_ARRAY[$index]}..."
-  close_context="/>"
+  additional_attributes=""
   if [ "${APP_ARRAY[$index]}" = "solr" ] ; then
-    close_context=$(cat <<-EOF
->
+    additional_attributes=$(cat <<-EOF
+
   <Valve className="org.apache.catalina.valves.RemoteAddrValve" allow="127\.0\.0\.1|$IP1\.$IP2\.$IP3\..*"/>
   <Parameter name="LocalHostRestrictionFilter.localhost" value="false" override="false" />
-</Context>
 EOF
     )
   fi
@@ -77,8 +76,9 @@ EOF
 <?xml version='1.0'?>
 <Context
   docBase="$DSPACE_INSTALL/webapps/${APP_ARRAY[$index]}"
-  reloadable="$RELOADABLE"
-  cachingAllowed="$CACHINGALLOWED" $close_context
+  reloadable="$RELOADABLE" >
+  <Resources cachingAllowed="$CACHINGALLOWED" /> $additional_attributes
+</Context>
 EOF
   )
   app_conf_filename="${APP_ARRAY[$index]}.xml"
