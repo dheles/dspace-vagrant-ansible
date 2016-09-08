@@ -1,6 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+require_relative './script/authorize_key'
 require 'securerandom'
 domain          = "-d changeme.edu"
 db_ip           = "10.10.40.102"
@@ -15,6 +16,9 @@ app_hostname    = "-ah dspace-5-dev"
 app_user        = "-au dspace"
 tomcat_admin    = "-ta CHANGEME"
 tomcat_password = "-tp CHANGEME"
+auto_user       = "deploy"
+auto_user_arg   = "-ou #{auto_user}"
+auto_key        = "~/.ssh/dspace_stage.pub"
 
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
@@ -34,6 +38,14 @@ Vagrant.configure(2) do |config|
     end
 
     # part 1 - install
+      # create user to do further work with Ansible
+      ansible_args = [auto_user_arg].join(" ")
+      db.vm.provision "ansible prerequisites", type: "shell", path: "script/ansible_prereqs.sh", args: ansible_args
+
+      # add authorized key to user created by the ansible prereqs script
+      # TODO: script key creation
+      authorize_key db, auto_user, auto_key
+
       db_pre_args = [db_hostname, domain, db_ip_arg].join(" ")
       db.vm.provision "db prerequisites", type: "shell", path: "script/db_prereqs.sh", args: db_pre_args
 
@@ -65,6 +77,14 @@ Vagrant.configure(2) do |config|
     end
 
     # part 1 - install &/or deploy
+      # create user to do further work with Ansible
+      ansible_args = [auto_user_arg].join(" ")
+      app.vm.provision "ansible prerequisites", type: "shell", path: "script/ansible_prereqs.sh", args: ansible_args
+
+      # add authorized key to user created by the ansible prereqs script
+      # TODO: script key creation
+      authorize_key app, auto_user, auto_key
+
       # do minimal provisioning to set up
       app_pre_args = [app_user, tomcat_admin, tomcat_password, app_hostname, domain, app_ip_arg].join(" ")
       app.vm.provision "prerequisites", type: "shell", path: "script/prereqs.sh", args: app_pre_args
@@ -109,6 +129,19 @@ Vagrant.configure(2) do |config|
     # # TODO: segment this in a less confusing way
     #   app.vm.provision "db upgrade", type: "shell", path: "script/db_upgrade.sh"
 
+  end
+
+  # include playbooks in provisioning
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "playbooks/test.yml"
+    ansible.limit = 'all'
+  end
+
+  # vm (re)defined here must match a shortname above
+  config.vm.define "app" do |app|
+    app.vm.provision "ansible" do |ansible|
+      ansible.playbook = "playbooks/test_ruby.yml"
+    end
   end
 
 end

@@ -1,0 +1,15 @@
+---
+- hosts: all
+  tasks:
+    - name: Check if ruby is installed
+      register: ruby_installed
+      command: ruby -v
+      ignore_errors: true
+
+    - name: This task is only executed if ruby is installed
+      debug: var=ruby_installed
+      when: ruby_installed|success
+
+    - name: This task is only executed if ruby is NOT installed
+      debug: msg='ruby is NOT installed'
+      when: ruby_installed|failed
