@@ -1,4 +1,10 @@
+# Vagrant
 .vagrant
+
+# Ansible
+*.retry
+
+# project-specific
 public_ssh_key/authorized_key.pub
 db_backup/*
 !db_backup/.keep

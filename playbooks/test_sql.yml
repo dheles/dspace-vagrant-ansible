@@ -1,0 +1,54 @@
+---
+- hosts: all
+  tasks:
+
+    # simple:
+    - name: execute a test query
+      #shell: psql -h dspace-5-db.changeme.edu -U dspace dspace -c 'SELECT * FROM eperson WHERE eperson_id=667;'
+      shell: psql -U dspace dspace -c 'SELECT * FROM eperson WHERE eperson_id IN (667,10,11);' # | grep row
+      register: eperson
+      become: yes
+    - debug: msg="{{ eperson.stdout }}"
+    - debug: var=eperson.stdout_lines
+
+    # from file:
+    - name: copy sql file(s) to the server
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: deploy
+        group: deploy
+        mode: 0644
+      with_items:
+        - src: "queries/test_select.sql"
+          dest: "/tmp/test_select.sql"
+        - src: "queries/item_metadata.sql"
+          dest: "/tmp/item_metadata.sql"
+
+    - name: execute a test query from a file
+      shell: "psql -U dspace dspace -v ids=667 < {{ item.file }}"
+      register: eperson2
+      become: yes
+      with_items:
+        - file: "/tmp/test_select.sql"
+    - debug: var=eperson2.results[0].stdout_lines
+
+    - name: execute another test query from a file
+      shell: "psql -U dspace dspace -v ids=37524 < {{ item.file }}"
+      register: metadata
+      become: yes
+      with_items:
+        - file: "/tmp/item_metadata.sql"
+    - debug: var=metadata.results[0].stdout_lines
+
+    - name: remove the sql file(s) from the server
+      file:
+        path: "{{ item.path }}"
+        state: absent
+      with_items:
+        - path: "/tmp/test_select.sql"
+        - path: "/tmp/item_metadata.sql"
+
+# TODO: consider using this: https://galaxy.ansible.com/galaxyprojectdotorg/postgresql/
+
+# REM: call it like this to see the result: $ ansible-playbook playbooks/test_sql.yml --limit db -v

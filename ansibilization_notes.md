@@ -7,3 +7,5 @@ Host 10.10.40.* *.changeme.edu
         User deploy
         LogLevel ERROR
         IdentityFile ~/.ssh/dspace_stage
+
+TODO: script refinements, such as restricting root and password logins

@@ -1,0 +1,34 @@
+---
+- hosts: all
+  tasks:
+    - name: copy sql file(s) to the server
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: deploy
+        group: deploy
+        mode: 0644
+      with_items:
+        - src: "queries/rehandle.sql"
+          dest: "/tmp/rehandle.sql"
+
+    - name: adjust handle URIs in the database
+      shell: psql -U dspace dspace -v old_handle="'{{ item.old_handle }}'" -v new_handle="'{{ item.new_handle }}'" -v pattern="'{{ item.old_handle }}%'" < "{{ item.file }}"
+      register: rehandled
+      become: yes
+      with_items:
+        - file: "/tmp/rehandle.sql"
+          old_handle: "http://hdl.handle.net/1774"
+          new_handle: "http://jhir.library.jhu.edu/handle/1774"
+    - debug: var=rehandled.results[0].stdout_lines
+
+    - name: remove the sql file(s) from the server
+      file:
+        path: "{{ item.path }}"
+        state: absent
+      with_items:
+        - path: "/tmp/rehandle.sql"
+
+# TODO: consider using this: https://galaxy.ansible.com/galaxyprojectdotorg/postgresql/
+
+# REM: call it like this to see the result: $ ansible-playbook playbooks/rehandle.yml -l db [-v]
