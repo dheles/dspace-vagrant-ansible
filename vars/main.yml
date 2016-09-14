@@ -1,0 +1,7 @@
+
+---
+domain: jhu.dev
+db_name: dspace
+db_user: dspace
+app_user: dspace
+tomcat_admin: dspace

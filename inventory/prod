@@ -1,0 +1,13 @@
+# NOTE: currently in a fake-out state while developing the process.
+
+# prod:
+# ------------------
+[app]
+dspace-prod.jhu.dev
+
+[db]
+dspace-db-prod.jhu.dev
+
+[prod:children]
+app
+db

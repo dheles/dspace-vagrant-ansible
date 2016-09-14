@@ -1,0 +1,11 @@
+# dev:
+# ------------------
+[app]
+dspace-dev.jhu.dev
+
+[db]
+dspace-db-dev.jhu.dev
+
+[dev:children]
+app
+db

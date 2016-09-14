@@ -1,0 +1,13 @@
+# NOTE: currently in a fake-out state while developing the process.
+
+# stage:
+# ------------------
+[app]
+dspace-stage.jhu.dev
+
+[db]
+dspace-db-stage.jhu.dev
+
+[stage:children]
+app
+db

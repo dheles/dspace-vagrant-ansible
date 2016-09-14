@@ -1,9 +1,0 @@
-[dev:children]
-app
-db
-
-[app]
-dspace-5-dev.changeme.edu
-
-[db]
-dspace-5-db.changeme.edu
