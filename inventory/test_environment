@@ -18,29 +18,29 @@ dspace-db-dev.jhu.dev
 #app_dev
 db_dev
 
-## stage:
-## ------------------
+# stage:
+# ------------------
 #[app_stage]
 #dspace-stage.jhu.dev
 
-#[db_stage]
-#dspace-db-stage.jhu.dev
+[db_stage]
+dspace-db-stage.jhu.dev
 
-#[stage:children]
+[stage:children]
 #app_stage
-#db_stage
+db_stage
 
-## prod:
-## ------------------
+# prod:
+# ------------------
 #[app_prod]
 #dspace-prod.jhu.dev
 
-#[db_prod]
-#dspace-db-prod.jhu.dev
+[db_prod]
+dspace-db-prod.jhu.dev
 
-#[prod:children]
+[prod:children]
 #app_prod
-#db_prod
+db_prod
 
 # groups:
 # ------------------
@@ -51,5 +51,5 @@ db_dev
 
 [db_servers:children]
 db_dev
-#db_stage
-#db_prod
+db_stage
+db_prod

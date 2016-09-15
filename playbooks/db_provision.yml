@@ -1,0 +1,3 @@
+---
+- include: db_install.yml
+- include: db_configure.yml

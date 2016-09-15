@@ -10,11 +10,11 @@
     - name: adjust pg_hba.conf for local connections
       lineinfile:
         dest: "/var/lib/pgsql/data/pg_hba.conf"
-        regexp: '^local\s+dspace\s+dspace\s+ident'
-        line: "local   dspace  dspace                          ident"
+        regexp: '^local\s+dspace\s+dspace\s+md5'
+        line: "local   dspace  dspace                          md5"
         state: present
       notify: restart postgresql
-      
+
 # TODO: consider using this: https://galaxy.ansible.com/galaxyprojectdotorg/postgresql/
 
 # REM: call it like this to see the result: $ ansible-playbook playbooks/adjust_pg_hba.yml -l db [-v]

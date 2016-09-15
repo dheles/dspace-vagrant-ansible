@@ -20,11 +20,11 @@ Vagrant.configure(2) do |config|
 
   {
     # 'dspace_dev'      => '10.10.20.101',
-    'dspace-db-dev'   => '10.10.20.102'
+    'dspace-db-dev'   => '10.10.20.102',
     # 'dspace_stage'    => '10.10.20.103',
-    # 'dspace_db_stage' => '10.10.20.104',
+    'dspace-db-stage' => '10.10.20.104',
     # 'dspace_prod'     => '10.10.20.105',
-    # 'dspace_db_prod'  => '10.10.20.106'
+    'dspace-db-prod'  => '10.10.20.106'
   }.each do |short_name, ip|
     config.vm.define short_name do |host|
       host.vm.network 'private_network', ip: ip
@@ -49,8 +49,8 @@ Vagrant.configure(2) do |config|
 
       # provision db servers
       host.vm.provision "ansible" do |ansible|
-        ansible.playbook = "playbooks/provision_db.yml"
-        ansible.limit = 'dspace-db-*'
+        ansible.playbook = "playbooks/db_provision.yml"
+        ansible.limit = "#{short_name}"
       end
 
     end
