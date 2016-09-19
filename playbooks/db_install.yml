@@ -1,5 +1,5 @@
 ---
-- hosts: all
+- hosts: db_servers
   become: true
 
   vars_files:
@@ -15,12 +15,20 @@
   tasks:
     - name: install prerequisites
       script: ../script/db_prereqs.sh {{ db_hostname_arg }} {{ domain_arg }} {{ db_ip_arg }}
+      register: result
+      changed_when: "'Nothing to do' not in result.stdout"
 
     - name: configure firewall
       script: ../script/db_firewall.sh
+      register: result
+      changed_when: "'Created symlink' in result.stdout"
 
     - name: install database server
       script: ../script/db_install.sh {{ db_name_arg }} {{ db_user_arg }}
+      register: result
+      changed_when: "'postgres now installed' in result.stdout"
 
     - name: create the application database
       script: ../script/db_create.sh {{ db_name_arg }} {{ db_user_arg }} {{ db_pass_arg }}
+      register: result
+      changed_when: "'Database now created' in result.stdout"

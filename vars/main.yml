@@ -3,6 +3,5 @@
 domain: jhu.dev
 db_name: dspace
 db_user: dspace
-db_pass: take_me_to_the_vault
 app_user: dspace
 tomcat_admin: dspace

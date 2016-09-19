@@ -8,6 +8,7 @@ domain          = "jhu.dev"
 auto_user       = "deploy"
 auto_user_arg   = "-ou #{auto_user}"
 auto_key        = "~/.ssh/dspace_stage.pub"
+setup_complete  = false
 
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
@@ -33,6 +34,7 @@ Vagrant.configure(2) do |config|
       host.hostsupdater.aliases = ["#{short_name}"]
       # avoinding "Authentication failure" issue
       host.ssh.insert_key = false
+      host.vm.synced_folder '.', '/vagrant', disabled: true
 
       host.vm.provider "virtualbox" do |vb|
         vb.name = "#{short_name}.#{domain}"
@@ -47,19 +49,44 @@ Vagrant.configure(2) do |config|
       # add authorized key to user created by the ansible prereqs script
       authorize_key host, auto_user, auto_key
 
-      # provision db servers
-      host.vm.provision "ansible" do |ansible|
-        ansible.playbook = "playbooks/db_provision.yml"
-        ansible.limit = "#{short_name}"
+      if short_name == "dspace-db-prod" # last in the list
+        setup_complete = true
+      end
+
+      if setup_complete
+        # provision db servers
+        host.vm.provision "ansible" do |ansible|
+          # ansible.verbose = "v"
+          ansible.playbook = "playbooks/db_provision.yml"
+          # NOTE: not reading from ansible.cfg
+          ansible.inventory_path = "inventory/test_environment"
+          # NOTE: can't just leave this out and expect it to default to "all"
+          ansible.limit = "all"
+          # NOTE: if this doesn't agree with an inventory entry,
+          # group_vars may not apply correctly;
+          # if it doesn't agree with vagrant's names for things, it won't run.
+          # therefore, it's best to specify "all" and filter in the playbooks
+          # ansible.limit = "#{short_name}"
+        end
       end
 
     end
   end
 
-  # # provision db servers
-  # config.vm.provision "ansible" do |ansible|
-  #   ansible.playbook = "playbooks/provision_db.yml"
-  #   ansible.limit = 'dspace-db-dev'
+  # if setup_complete
+  #   # provision db servers
+  #   config.vm.provision "ansible" do |ansible|
+  #     ansible.playbook = "playbooks/db_provision.yml"
+  #     # NOTE: not reading from ansible.cfg
+  #     ansible.inventory_path = "inventory/test_environment"
+  #     # NOTE: can't just leave this out and expect it to default to "all"
+  #     ansible.limit = "all"
+  #     # NOTE: if this doesn't agree with an inventory entry,
+  #     # group_vars may not apply correctly;
+  #     # if it doesn't agree with vagrant's names for things, it won't run.
+  #     # therefore, it's best to specify "all" and filter in the playbooks
+  #     # ansible.limit = "#{short_name}"
+  #   end
   # end
 
   # # vm (re)defined here must match a shortname above
