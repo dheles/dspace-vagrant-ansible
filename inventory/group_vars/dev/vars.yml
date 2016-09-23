@@ -1,0 +1,8 @@
+---
+domain:           "jhu.dev"
+db_ip:            "10.10.20.102"
+db_hostname:      "dspace-db-dev"
+app_ip:           "10.10.20.101"
+app_hostname:     "dspace-dev"
+db_pass:          "{{ vault_db_pass }}"
+tomcat_pass:      "{{ vault_tomcat_pass }}"

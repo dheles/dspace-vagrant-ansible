@@ -9,6 +9,7 @@ function usage
 }
 
 # set defaults:
+ADMIN="deploy"
 APPLICATION_USER="dspace"
 TOMCAT_ADMIN="CHANGEME"
 TOMCAT_ADMIN_PASSWORD="CHANGEME"
@@ -35,6 +36,7 @@ while [ "$1" != "" ]; do
 done
 
 # set remaining vars
+ADMIN_HOME="/home/$ADMIN"
 CORE_INSTALL_DIR="/usr/local"
 CATALINA_HOME="$CORE_INSTALL_DIR/tomcat"
 ROLES_CONFIG="$CATALINA_HOME/conf/tomcat-users.xml"
@@ -95,3 +97,12 @@ sudo chown -R $APPLICATION_USER: $APP_CONFIG
 
 sudo systemctl daemon-reload
 sudo systemctl start tomcat
+
+# TODO: error checking and idempotency
+# start here (incomplete solution)
+# URL="http://localhost:8080/$APP_NAME"
+# NETRC="machine $URL login $TOMCAT_ADMIN password $TOMCAT_ADMIN_PASSWORD"
+# echo "$NETRC" | sudo tee $ADMIN_HOME/.netrc > /dev/null
+# sudo chown $ADMIN: $ADMIN_HOME/.netrc
+# sudo chmod 0600 $ADMIN_HOME/.netrc
+# curl --netrc $URL

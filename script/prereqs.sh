@@ -6,6 +6,7 @@ function usage
 }
 
 # set defaults:
+ADMIN="deploy"
 APPLICATION_USER="dspace"
 TOMCAT_ADMIN="CHANGEME"
 TOMCAT_ADMIN_PASSWORD="CHANGEME"
@@ -44,9 +45,13 @@ while [ "$1" != "" ]; do
 done
 
 # set remaining vars
+ADMIN_HOME="/home/$ADMIN"
 APACHE_MIRROR="http://mirror.cc.columbia.edu/pub/software/apache"
 INSTALL_DIR="/usr/local"
 FQDN="$HOSTNAME.$DOMAIN"
+
+# surprised this is needed, but it is; lest we reinstall things
+source /etc/profile
 
 sudo yum update -y
 
@@ -59,7 +64,7 @@ sudo yum install -y git
 sudo yum install -y epel-release
 # NOTE: just my personal preference, not actually required:
 sudo yum install -y vim-enhanced
-echo "--> prereqs are now installed."
+echo "--> prereqs installed."
 
 # hostname
 echo "--> checking hostname"
@@ -149,7 +154,7 @@ fi
 sudo useradd -m -c "$APPLICATION_USER system account" $APPLICATION_USER
 
 # tomcat
-TOMCAT_VERSION="8.0.36"
+TOMCAT_VERSION="8.5.5"
 CATALINA_HOME=$INSTALL_DIR/tomcat
 if sh $CATALINA_HOME/bin/version.sh | grep $TOMCAT_VERSION ; then
   echo "--> tomcat $TOMCAT_VERSION already installed, moving on."

@@ -1,0 +1,23 @@
+---
+# domain:           ENVIRONMENT VARS
+domain_arg:       "-d {{ domain }}"
+# db_ip:            "{{ ansible_eth1.ipv4.address }}"
+db_ip_arg:        "-di {{ db_ip }}"
+# db_hostname:      "{{ ansible_hostname }}"
+db_hostname_arg:  "-dh {{ db_hostname }}"
+db_name:          "dspace"
+db_name_arg:      "-dn {{ db_name }}"
+db_user:          "dspace"
+db_user_arg:      "-du {{ db_user }}"
+#db_pass:          ENVIRONMENT VARS
+db_pass_arg:      "-dp {{ db_pass }}"
+# app_ip:           "{{ ansible_eth1.ipv4.address }}"
+app_ip_arg:       "-ai {{ app_ip }}"
+# app_hostname:     "{{ ansible_hostname }}"
+app_hostname_arg: "-ah {{ app_hostname }}"
+app_user:         "dspace"
+app_user_arg:     "-au {{ app_user }}"
+tomcat_admin:     "dspace"
+tomcat_admin_arg: "-ta {{ tomcat_admin }}"
+#tomcat_pass:      ENVIRONMENT VARS
+tomcat_pass_arg:  "-tp {{ tomcat_pass }}"

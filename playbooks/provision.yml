@@ -1,0 +1,3 @@
+---
+- include: db_provision.yml
+- include: app_install.yml

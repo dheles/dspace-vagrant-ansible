@@ -1,0 +1,44 @@
+---
+- hosts: app_servers
+  become: true
+
+  # vars_files:
+    # all vars currently in group_vars
+
+  tasks:
+    - name: install prerequisites
+      script: ../script/prereqs.sh {{ app_user_arg }} {{ tomcat_admin_arg }} {{ tomcat_pass_arg }} {{ app_hostname_arg }} {{ domain_arg }} {{ app_ip_arg }}
+      register: result
+      changed_when: "'now installed' in result.stdout"
+      failed_when: "'ERROR' in result.stdout"
+
+    - name: install psi-probe
+      script: ../script/app_psi-probe.sh {{ app_user_arg }} {{ tomcat_admin_arg }} {{ tomcat_pass_arg }}
+      register: result
+      changed_when: "'BUILD SUCCESS' in result.stdout"
+
+    - name: configure firewall
+      script: ../script/app_firewall.sh
+      register: result
+      # changed_when: "'Created symlink' in result.stdout"
+
+    - name: install mirage2 prerequisites
+      script: ../script/prereqs_mirage2.sh {{ app_user_arg }}
+      register: result
+      changed_when: "'Installing' in result.stdout"
+
+    - name: install the database client
+      script: ../script/db_client.sh {{ db_ip_arg }} {{ db_hostname_arg }} {{ domain_arg }} {{ db_name_arg }} {{ db_user_arg }} {{ db_pass_arg }} {{ app_user_arg }}
+      register: result
+      failed_when: "'Error' in result.stdout"
+      # changed_when: "'Database now created' in result.stdout"
+
+    - name: build dspace
+      script: ../script/build_dspace.sh {{ app_user_arg }} {{ db_hostname_arg }} {{ domain_arg }} {{ db_name_arg }} {{ db_user_arg }} {{ db_pass_arg }} {{ app_ip_arg }} {{ app_hostname_arg }}
+      register: result
+      changed_when: "'already built' not in result.stdout"
+
+    - name: install apache
+      script: ../script/app_apache.sh {{ app_hostname_arg }} {{ domain_arg }}
+      register: result
+      changed_when: "'already installed' not in result.stdout"

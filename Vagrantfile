@@ -20,11 +20,11 @@ Vagrant.configure(2) do |config|
   config.vm.box = "centos/7"
 
   {
-    # 'dspace_dev'      => '10.10.20.101',
+    'dspace-dev'      => '10.10.20.101',
     'dspace-db-dev'   => '10.10.20.102',
-    # 'dspace_stage'    => '10.10.20.103',
+    'dspace-stage'    => '10.10.20.103',
     'dspace-db-stage' => '10.10.20.104',
-    # 'dspace_prod'     => '10.10.20.105',
+    'dspace-prod'     => '10.10.20.105',
     'dspace-db-prod'  => '10.10.20.106'
   }.each do |short_name, ip|
     config.vm.define short_name do |host|
@@ -38,7 +38,12 @@ Vagrant.configure(2) do |config|
 
       host.vm.provider "virtualbox" do |vb|
         vb.name = "#{short_name}.#{domain}"
-        vb.memory = 256
+        vb.memory = 512
+        if short_name.include? "-db-"
+          vb.memory = 512
+        else
+          vb.memory = 1024
+        end
         vb.linked_clone = true
       end
 
@@ -54,14 +59,16 @@ Vagrant.configure(2) do |config|
       end
 
       if setup_complete
-        # provision db servers
         host.vm.provision "ansible" do |ansible|
           # ansible.verbose = "v"
-          ansible.playbook = "playbooks/db_provision.yml"
+          ansible.playbook = "playbooks/provision.yml"
+
           # NOTE: not reading from ansible.cfg
           ansible.inventory_path = "inventory/test_environment"
+
           # NOTE: can't just leave this out and expect it to default to "all"
           ansible.limit = "all"
+
           # NOTE: if this doesn't agree with an inventory entry,
           # group_vars may not apply correctly;
           # if it doesn't agree with vagrant's names for things, it won't run.
