@@ -20,11 +20,11 @@ Vagrant.configure(2) do |config|
   config.vm.box = "centos/7"
 
   {
-    'dspace-dev'      => '10.10.20.101',
+    # 'dspace-dev'      => '10.10.20.101',
     'dspace-db-dev'   => '10.10.20.102',
-    'dspace-stage'    => '10.10.20.103',
+    # 'dspace-stage'    => '10.10.20.103',
     'dspace-db-stage' => '10.10.20.104',
-    'dspace-prod'     => '10.10.20.105',
+    # 'dspace-prod'     => '10.10.20.105'
     'dspace-db-prod'  => '10.10.20.106'
   }.each do |short_name, ip|
     config.vm.define short_name do |host|
