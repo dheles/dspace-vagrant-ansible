@@ -1,0 +1,68 @@
+---
+- name: mock production database
+  hosts: db_prod
+  become: yes
+  become_user: "{{ admin }}"
+
+  vars:
+    prod_backup_local: "../db_backup/production_backup.sql"
+    restore_file: "~/production_backup.sql"
+
+  handlers:
+    - include: handlers/restart_postgres.yml
+
+  tasks:
+    - name: instal EPEL repo
+      yum: name=epel-release state=present
+      become_user: root
+
+    - name: install prereqs for ansible control of postgres
+      yum: name={{ item }} state=present enablerepo=epel
+      become_user: root
+      with_items:
+        - python-psycopg2
+        - postgresql-libs
+
+    - name: copy production backup to server
+      copy:
+        src: "{{ prod_backup_local }}"
+        dest: "{{ restore_file }}"
+
+    - name: production pg_hba entry
+      include: tasks/pg_hba_entry.yml
+      vars:
+        connection_type: "local"
+        database: "{{ db_name }}"
+        user: "{{ db_user }}"
+        auth_method: "md5"
+        state: "present"
+
+    - name: ensure admin user has necessary permissions
+      include: tasks/pgpass.yml
+      vars:
+        admin_user: "{{ admin }}"
+        database: "{{ db_name }}"
+        user: "{{ db_user }}"
+        password: "{{ db_pass }}"
+        state: "present"
+
+    - name: backup production database # TODO: needful?
+      include: tasks/backup_db.yml
+      vars:
+        database: "{{ db_name }}"
+        user: "{{ db_user }}"
+        backup_file: "{{ db_name }}_backup.sql"
+
+    - name: restore database from dump
+      include: tasks/restore_db.yml
+      vars:
+        database: "{{ db_name }}"
+        user: "{{ db_user }}"
+        file: "{{ restore_file }}"
+
+    - name: check prod db
+      become_user: postgres
+      shell: "psql -l"
+      register: result
+      failed_when: "'{{ db_name }}' not in result.stdout"
+      changed_when: false

@@ -1,10 +1,10 @@
 ---
-- name: ensure user has necessary permissions
+- name: adjust pgpass 
   lineinfile:
     dest: "/home/{{ admin_user }}/.pgpass"
     regexp: "^localhost:\\*:{{ database }}:"
     line:    "localhost:*:{{ database }}:{{ user }}:{{ password }}"
-    state: "present"
+    state: "{{ state }}"
     create: yes
     owner: "{{ admin_user }}"
     group: "{{ admin_user }}"

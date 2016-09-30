@@ -21,3 +21,6 @@ tomcat_admin:     "dspace"
 tomcat_admin_arg: "-ta {{ tomcat_admin }}"
 #tomcat_pass:      ENVIRONMENT VARS
 tomcat_pass_arg:  "-tp {{ tomcat_pass }}"
+
+
+admin: "deploy"

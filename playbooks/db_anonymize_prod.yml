@@ -1,0 +1,84 @@
+---
+# TODO: generalize
+- name: create anonymized backup of production database
+  hosts: db_prod
+  become: yes
+  become_user: "{{ admin }}"
+
+  vars:
+    anon_db: "dspace-anon"
+
+  handlers:
+    - include: handlers/restart_postgres.yml
+
+  tasks:
+    - name: add pg_hba entry for anonymized database
+      include: tasks/pg_hba_entry.yml
+      vars:
+        connection_type: "local"
+        database: "{{ anon_db }}"
+        user: "{{ db_user }}"
+        auth_method: "md5"
+        state: "present"
+
+    - name: add pgpass entry for anonymized database
+      include: tasks/pgpass.yml
+      vars:
+        admin_user: "{{ admin }}"
+        database: "{{ anon_db }}"
+        user: "{{ db_user }}"
+        password: "{{ db_pass }}"
+        state: "present"
+
+    - name: backup production database
+      include: tasks/backup_db.yml
+      vars:
+        database: "{{ db_name }}"
+        user: "{{ db_user }}"
+        backup_file: "production_dump.sql"
+
+    - name: restore anonymized database from production database
+      include: tasks/restore_db.yml
+      vars:
+        database: "{{ anon_db }}"
+        user: "{{ db_user }}"
+        file: "production_dump.sql"
+
+    - name: run query to anonymize database
+      include: tasks/query_db.yml
+      vars:
+        admin_user: "{{ admin }}"
+        database: "{{ anon_db }}"
+        user: "{{ db_user }}"
+        query_file: "anonymize_db.sql"
+
+    - name: backup anonymized database
+      include: tasks/backup_db.yml
+      vars:
+        database: "{{ anon_db }}"
+        user: "{{ db_user }}"
+        backup_file: "anon_dump.sql"
+
+    - name: drop anonymized database
+      postgresql_db:
+        name: "{{ anon_db }}"
+        state: "absent"
+      become_user: postgres
+
+    - name: remove pg_hba entry
+      include: tasks/pg_hba_entry.yml
+      vars:
+        connection_type: "local"
+        database: "{{ anon_db }}"
+        user: "{{ db_user }}"
+        auth_method: "md5"
+        state: "absent"
+
+    - name: remove pgpass entry
+      include: tasks/pgpass.yml
+      vars:
+        admin_user: "{{ admin }}"
+        database: "{{ anon_db }}"
+        user: "{{ db_user }}"
+        password: "{{ db_pass }}"
+        state: "absent"

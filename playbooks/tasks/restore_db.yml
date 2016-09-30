@@ -14,7 +14,7 @@
   become_user: postgres
 
 - name: restore db from file
-  shell: "pg_restore -U {{ user }} -d {{ database }} -n public -O < {{ restore_file }}"
+  shell: "pg_restore -U {{ user }} -d {{ database }} -n public -O < {{ file }}"
 
 - name: check restored db
   become_user: postgres

@@ -14,3 +14,5 @@
   become: yes
   become_user: postgres
   notify: restart postgresql
+
+- meta: flush_handlers
