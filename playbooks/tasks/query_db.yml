@@ -1,0 +1,20 @@
+---
+# TODO: avoid hardcoding paths
+# TODO: handle arguments
+- name: copy sql file to the server
+  copy:
+    src: "queries/{{ query_file }}"
+    dest: "/home/{{ admin_user }}/{{ query_file }}"
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+    mode: 0644
+
+- name: execute a test query from a file
+  shell: "psql -U {{ user }} {{ database }} < {{ query_file }}"
+  register: result
+  become: yes
+
+- name: remove the sql file from the server
+  file:
+    path: "/home/{{ admin_user }}/{{ query_file }}"
+    state: absent

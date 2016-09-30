@@ -1,0 +1,16 @@
+---
+# TODO: cover all 7 formats: https://www.postgresql.org/docs/9.3/static/auth-pg-hba-conf.html
+# vars:
+# - connection_type
+# - database
+# - user
+# - auth_method
+- name: adjust pg_hba.conf for connection
+  lineinfile:
+    dest: "/var/lib/pgsql/data/pg_hba.conf" # TODO: parameterize
+    regexp: '^{{ connection_type }}\s+{{ database }}\s+{{ user }}\s+{{ auth_method }}'
+    line: "{{ connection_type }}   {{ database }}  {{ user }}   {{ auth_method }}"
+    state: "{{ state }}"
+  become: yes
+  become_user: postgres
+  notify: restart postgresql

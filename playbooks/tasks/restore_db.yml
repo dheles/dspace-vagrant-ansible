@@ -1,0 +1,24 @@
+---
+- name: drop db
+  postgresql_db:
+    name: "{{ database }}"
+    state: "absent"
+  become_user: postgres
+
+- name: recreate db
+  postgresql_db:
+    name: "{{ database }}"
+    state: "present"
+    owner: "{{ user }}"
+    encoding: "UNICODE"
+  become_user: postgres
+
+- name: restore db from file
+  shell: "pg_restore -U {{ user }} -d {{ database }} -n public -O < {{ restore_file }}"
+
+- name: check restored db
+  become_user: postgres
+  shell: "psql -l"
+  register: result
+  failed_when: "'{{ database }}' not in result.stdout"
+  changed_when: false

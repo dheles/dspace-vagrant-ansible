@@ -77,3 +77,64 @@
       register: result
       failed_when: "'{{ db_name }}' not in result.stdout"
       changed_when: false
+
+- name: anonymize production database
+  hosts: db_prod
+  become: yes
+  become_user: "{{ admin }}"
+
+  vars:
+    admin: deploy
+    anon_db: "dspace-anon"
+
+  handlers:
+    - include: handlers/restart_postgres.yml
+
+  tasks:
+    - include: tasks/pg_hba_entry.yml
+      vars:
+        connection_type: "local"
+        database: "{{ anon_db }}"
+        user: "{{ db_user }}"
+        auth_method: "md5"
+        state: "present"
+
+    - include: tasks/pgpass.yml
+      vars:
+        admin_user: "{{ admin }}"
+        database: "{{ anon_db }}"
+        user: "{{ db_user }}"
+        password: "{{ db_pass }}"
+
+    - include: tasks/backup_db.yml
+      vars:
+        database: "{{ db_name }}"
+        user: "{{ db_user }}"
+        backup_file: "production_dump.sql"
+
+    - include: tasks/restore_db.yml
+      vars:
+        database: "{{ anon_db }}"
+        user: "{{ db_user }}"
+        restore_file: "production_dump.sql"
+
+    - include: tasks/query_db.yml
+      vars:
+        admin_user: "{{ admin }}"
+        database: "{{ anon_db }}"
+        user: "{{ db_user }}"
+        query_file: "anonymize_db.sql"
+
+    - include: tasks/backup_db.yml
+      vars:
+        database: "{{ anon_db }}"
+        user: "{{ db_user }}"
+        backup_file: "anon_dump.sql"
+
+    - include: tasks/pg_hba_entry.yml
+      vars:
+        connection_type: "local"
+        database: "{{ anon_db }}"
+        user: "{{ db_user }}"
+        auth_method: "md5"
+        state: "absent"
