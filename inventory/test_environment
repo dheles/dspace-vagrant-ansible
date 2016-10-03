@@ -53,3 +53,7 @@ db_prod
 db_dev
 db_stage
 db_prod
+
+[db_not_prod:children]
+db_dev
+db_stage
