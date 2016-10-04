@@ -1,0 +1,20 @@
+---
+- name: upgrade dspace database, using tools in the application server
+  hosts: app_not_prod
+  become: yes
+
+  tasks:
+    - name: check database, pre-upgrade
+      shell: "/opt/dspace/bin/dspace database info"
+
+    - name: upgrade database
+      shell: "/opt/dspace/bin/dspace database migrate"
+
+    - name: check database, post-upgrade
+      shell: "/opt/dspace/bin/dspace database info"
+
+    - name: restart tomcat
+      service: name=tomcat state=started
+
+    - name: check tomcat
+      service: name=tomcat state=running
