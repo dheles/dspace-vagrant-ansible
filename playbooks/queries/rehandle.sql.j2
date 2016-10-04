@@ -1,0 +1,12 @@
+/*
+URI correction query:
+changes URIs from
+	http://hdl.handle.net/1774.2/...
+TO
+	http://jhir.library.jhu.edu/handle/1774.2/...
+*/
+UPDATE metadatavalue
+SET text_value = replace(text_value, '{{ old_handle }}', '{{ new_handle }}')
+WHERE metadata_field_id = 25 	-- URI
+AND resource_type_id = 2	-- item
+AND text_value LIKE '{{ old_handle }}%'

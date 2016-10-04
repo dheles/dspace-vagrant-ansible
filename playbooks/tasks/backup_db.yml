@@ -1,4 +1,4 @@
 ---
 # TODO: parameterize arguments
 - name: backup database
-  shell: "pg_dump --format=custom --oids --no-owner --no-acl --ignore-version -U {{ user }} {{ database }} > {{ backup_file }}"
+  shell: "pg_dump --format=custom --oids --no-owner --no-acl --ignore-version -U {{ user }} {{ database }} > {{ file }}"

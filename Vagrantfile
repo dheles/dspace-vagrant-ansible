@@ -20,8 +20,8 @@ Vagrant.configure(2) do |config|
   config.vm.box = "centos/7"
 
   {
-    'dspace-dev'      => '10.10.20.101',
-    'dspace-db-dev'   => '10.10.20.102',
+    # 'dspace-dev'      => '10.10.20.101',
+    # 'dspace-db-dev'   => '10.10.20.102',
     'dspace-stage'    => '10.10.20.103',
     'dspace-db-stage' => '10.10.20.104',
     # 'dspace-prod'     => '10.10.20.105'

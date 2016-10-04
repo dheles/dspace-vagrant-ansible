@@ -1,34 +1,66 @@
 ---
-- hosts: all
+- hosts: db_stage
+  become: yes
+  become_user: "{{ admin }}"
+
+  vars:
+    old_handle: "http://hdl.handle.net/1774"
+    new_handle: "http://jhir.library.jhu.edu/handle/1774"
+
+  handlers:
+    - include: handlers/restart_postgres.yml
+
   tasks:
-    - name: copy sql file(s) to the server
-      copy:
-        src: "{{ item.src }}"
-        dest: "{{ item.dest }}"
-        owner: deploy
-        group: deploy
-        mode: 0644
-      with_items:
-        - src: "queries/rehandle.sql"
-          dest: "/tmp/rehandle.sql"
+    - name: add pg_hba entry for database
+      include: tasks/pg_hba_entry.yml
+      vars:
+        connection_type: "local"
+        database: "{{ db_name }}"
+        user: "{{ db_user }}"
+        auth_method: "md5"
+        state: "present"
 
-    - name: adjust handle URIs in the database
-      shell: psql -U dspace dspace -v old_handle="'{{ item.old_handle }}'" -v new_handle="'{{ item.new_handle }}'" -v pattern="'{{ item.old_handle }}%'" < "{{ item.file }}"
-      register: rehandled
-      become: yes
-      with_items:
-        - file: "/tmp/rehandle.sql"
-          old_handle: "http://hdl.handle.net/1774"
-          new_handle: "http://jhir.library.jhu.edu/handle/1774"
-    - debug: var=rehandled.results[0].stdout_lines
+    - name: add pgpass entry for database
+      include: tasks/pgpass.yml
+      vars:
+        admin_user: "{{ admin }}"
+        database: "{{ db_name }}"
+        user: "{{ db_user }}"
+        password: "{{ db_pass }}"
+        state: "present"
 
-    - name: remove the sql file(s) from the server
-      file:
-        path: "{{ item.path }}"
-        state: absent
-      with_items:
-        - path: "/tmp/rehandle.sql"
+    - name: run query to modify handles in the database
+      include: tasks/query_db.yml
+      vars:
+        admin_user: "{{ admin }}"
+        database: "{{ db_name }}"
+        user: "{{ db_user }}"
+        query_file: "queries/rehandle.sql.j2"
 
-# TODO: consider using this: https://galaxy.ansible.com/galaxyprojectdotorg/postgresql/
-
-# REM: call it like this to see the result: $ ansible-playbook playbooks/rehandle.yml -l db [-v]
+    # - name: copy sql file to the server
+    #   copy:
+    #     src: "{{ item.src }}"
+    #     dest: "{{ item.dest }}"
+    #     owner: "{{ admin }}"
+    #     group: "{{ admin }}"
+    #     mode: 0644
+    #   with_items:
+    #     - src: "queries/rehandle.sql"
+    #       dest: "/home/{{ admin }}/rehandle.sql"
+    #
+    # - name: adjust handle URIs in the database
+    #   shell: psql -U "{{ db_user }}" "{{ db_name }}" -v old_handle="'{{ item.old_handle }}'" -v new_handle="'{{ item.new_handle }}'" -v pattern="'{{ item.old_handle }}%'" < "{{ item.file }}"
+    #   register: rehandled
+    #   become: yes
+    #   with_items:
+    #     - file: "/home/{{ admin }}/rehandle.sql"
+    #       old_handle: "http://hdl.handle.net/1774"
+    #       new_handle: "http://jhir.library.jhu.edu/handle/1774"
+    # - debug: var=rehandled.results[0].stdout_lines
+    #
+    # - name: remove the sql file from the server
+    #   file:
+    #     path: "{{ item.path }}"
+    #     state: absent
+    #   with_items:
+    #     - path: "/home/{{ admin }}/rehandle.sql"

@@ -8,15 +8,15 @@
 
 # dev:
 # ------------------
-[app_dev]
-dspace-dev.jhu.dev
+#[app_dev]
+#dspace-dev.jhu.dev
 
-[db_dev]
-dspace-db-dev.jhu.dev
+#[db_dev]
+#dspace-db-dev.jhu.dev
 
-[dev:children]
-app_dev
-db_dev
+#[dev:children]
+#app_dev
+#db_dev
 
 # stage:
 # ------------------
@@ -45,19 +45,19 @@ db_prod
 # groups:
 # ------------------
 [app_servers:children]
-app_dev
+#app_dev
 app_stage
 #app_prod
 
 [app_not_prod:children]
-app_dev
+#app_dev
 app_stage
 
 [db_servers:children]
-db_dev
+#db_dev
 db_stage
 db_prod
 
 [db_not_prod:children]
-db_dev
+#db_dev
 db_stage

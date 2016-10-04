@@ -24,3 +24,4 @@ tomcat_pass_arg:  "-tp {{ tomcat_pass }}"
 
 
 admin: "deploy"
+anonymized_backup: "anonymized_backup.sql"

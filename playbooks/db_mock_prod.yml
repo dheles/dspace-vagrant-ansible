@@ -12,16 +12,8 @@
     - include: handlers/restart_postgres.yml
 
   tasks:
-    - name: instal EPEL repo
-      yum: name=epel-release state=present
-      become_user: root
-
-    - name: install prereqs for ansible control of postgres
-      yum: name={{ item }} state=present enablerepo=epel
-      become_user: root
-      with_items:
-        - python-psycopg2
-        - postgresql-libs
+    - name: install ansible postgres prereqs
+      include: tasks/ansible_postgres_prereqs.yml
 
     - name: copy production backup to server
       copy:
@@ -46,12 +38,12 @@
         password: "{{ db_pass }}"
         state: "present"
 
-    - name: backup production database # TODO: needful?
+    - name: create JIC backup
       include: tasks/backup_db.yml
       vars:
         database: "{{ db_name }}"
         user: "{{ db_user }}"
-        backup_file: "{{ db_name }}_backup.sql"
+        file: "{{ db_name }}_backup.sql"
 
     - name: restore database from dump
       include: tasks/restore_db.yml
@@ -66,3 +58,13 @@
       register: result
       failed_when: "'{{ db_name }}' not in result.stdout"
       changed_when: false
+
+    - name: remove the backup file from the server
+      file:
+        path: "{{ restore_file }}"
+        state: absent
+
+    - name: remove the JIC backup from the server
+      file:
+        path: "{{ db_name }}_backup.sql"
+        state: absent

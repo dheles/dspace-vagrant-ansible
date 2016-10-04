@@ -1,0 +1,13 @@
+---
+- name: instal EPEL repo
+  yum: name=epel-release state=present
+  become: yes
+  become_user: root
+
+- name: install prereqs for ansible control of postgres
+  yum: name={{ item }} state=present enablerepo=epel
+  become: yes
+  become_user: root
+  with_items:
+    - python-psycopg2
+    - postgresql-libs

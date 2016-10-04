@@ -1,20 +1,26 @@
 ---
-# TODO: avoid hardcoding paths
-# TODO: handle arguments
+- set_fact:
+    debugging: false
+
+- name: set remote query file value
+  set_fact:
+    remote_query_file: "~/{{ query_file | basename | regex_replace('.j2', '') }}"
+
 - name: copy sql file to the server
-  copy:
-    src: "queries/{{ query_file }}"
-    dest: "/home/{{ admin_user }}/{{ query_file }}"
+  template:
+    src: "{{ query_file }}"
+    dest: "{{ remote_query_file }}"
     owner: "{{ admin_user }}"
     group: "{{ admin_user }}"
     mode: 0644
 
-- name: execute a test query from a file
-  shell: "psql -U {{ user }} {{ database }} < {{ query_file }}"
+- name: execute query from file
+  shell: "psql -U {{ user }} {{ database }} < {{ remote_query_file }}"
   register: result
   become: yes
 
 - name: remove the sql file from the server
   file:
-    path: "/home/{{ admin_user }}/{{ query_file }}"
+    path: "{{ remote_query_file }}"
     state: absent
+  when: not debugging

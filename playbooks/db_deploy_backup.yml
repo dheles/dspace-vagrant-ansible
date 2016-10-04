@@ -7,20 +7,17 @@
 # NOTE: can't seem to get synchronize module to keep the file ownership as advertised
 # therefore, using copy when moving to destination, as this allows resetting ownership
 
-- name: transfer backup from server(s)
+- name: transfer backup from server
   hosts: db_prod
   become: yes
-
-  vars:
-    backup_file: "anon_dump.sql"
+  become_user: "{{ admin }}"
 
   tasks:
     - name: transfer backup file from db_prod
       synchronize:
-        src: "/home/{{ admin }}/{{ backup_file }}"
-        dest: "../db_backup/{{ backup_file }}"
+        src: "{{ anonymized_backup }}"
+        dest: "../db_backup/{{ anonymized_backup }}"
         mode: "pull"
-        # set_remote_user: no
         use_ssh_args: yes
 
 - name: stop app servers before restoring database
@@ -31,43 +28,33 @@
     - name: stop tomcat
       service: name=tomcat state=stopped
 
-- name: transfer backup to other server(s)
+- name: deploy backup to other server(s)
   hosts: db_not_prod
   become: yes
-
-  vars:
-    backup_file: "anon_dump.sql"
+  become_user: "{{ admin }}"
 
   handlers:
     - include: handlers/restart_postgres.yml
 
   tasks:
-    - name: instal EPEL repo
-      yum: name=epel-release state=present
-      become_user: root
-
-    - name: install prereqs for ansible control of postgres
-      yum: name={{ item }} state=present enablerepo=epel
-      become_user: root
-      with_items:
-        - python-psycopg2
-        - postgresql-libs
+    - name: install ansible postgres prereqs
+      include: tasks/ansible_postgres_prereqs.yml
 
     - name: transfer backup file to destination server
       copy:
-        src: "../db_backup/{{ backup_file }}"
-        dest: "/home/{{ admin }}/{{ backup_file }}"
-        owner: deploy
-        group: deploy
+        src: "../db_backup/{{ anonymized_backup }}"
+        dest: "~/{{ anonymized_backup }}"
+        owner: "{{ admin }}"
+        group: "{{ admin }}"
 
     - name: restore db from backup
       include: tasks/restore_db.yml
       vars:
         database: "{{ db_name }}"
         user: "{{ db_user }}"
-        file: "{{ backup_file }}"
+        file: "{{ anonymized_backup }}"
 
     - name: remove the backup file from the server
       file:
-        path: "/home/{{ admin }}/{{ backup_file }}"
+        path: "{{ anonymized_backup }}"
         state: absent
