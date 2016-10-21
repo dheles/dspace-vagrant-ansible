@@ -2,16 +2,6 @@
 - hosts: db_servers
   become: true
 
-  vars_files:
-    - ../vars/main.yml
-  vars:
-    db_hostname_arg:  "-dh {{ ansible_hostname }}"
-    domain_arg:       "-d {{ domain }}"
-    db_ip_arg:        "-di {{ ansible_eth1.ipv4.address }}"
-    db_name_arg:      "-dn {{ db_name }}"
-    db_user_arg:      "-du {{ db_user }}"
-    db_pass_arg:      "-dp {{ db_pass }}"
-
   tasks:
     - name: install prerequisites
       script: ../script/db_prereqs.sh {{ db_hostname_arg }} {{ domain_arg }} {{ db_ip_arg }}

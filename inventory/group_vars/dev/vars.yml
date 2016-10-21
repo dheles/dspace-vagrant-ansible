@@ -6,3 +6,14 @@ app_ip:           "10.10.20.101"
 app_hostname:     "dspace-dev"
 db_pass:          "{{ vault_db_pass }}"
 tomcat_pass:      "{{ vault_tomcat_pass }}"
+
+# email vars:
+mail_server: "{{ vault_mail_server }}"
+mail_admin: "{{ vault_mail_admin }}"
+
+# admin vars:
+admin_email: "{{ vault_admin_email }}"
+admin_firstname: "{{ vault_admin_firstname }}"
+admin_lastname: "{{ vault_admin_lastname }}"
+admin_password: "{{ vault_admin_password }}"
+admin_language: "English"

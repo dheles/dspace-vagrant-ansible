@@ -20,12 +20,12 @@ Vagrant.configure(2) do |config|
   config.vm.box = "centos/7"
 
   {
-    # 'dspace-dev'      => '10.10.20.101',
-    # 'dspace-db-dev'   => '10.10.20.102',
-    'dspace-stage'    => '10.10.20.103',
-    'dspace-db-stage' => '10.10.20.104',
+    'dspace-dev'      => '10.10.20.101',
+    'dspace-db-dev'   => '10.10.20.102',
+    # 'dspace-stage'    => '10.10.20.103',
+    # 'dspace-db-stage' => '10.10.20.104',
     # 'dspace-prod'     => '10.10.20.105'
-    'dspace-db-prod'  => '10.10.20.106'
+    # 'dspace-db-prod'  => '10.10.20.106'
   }.each do |short_name, ip|
     config.vm.define short_name do |host|
       host.vm.network 'private_network', ip: ip
@@ -54,7 +54,7 @@ Vagrant.configure(2) do |config|
       # add authorized key to user created by the ansible prereqs script
       authorize_key host, auto_user, auto_key
 
-      if short_name == "dspace-db-prod" # last in the list
+      if short_name == "dspace-db-dev" # last in the list
         setup_complete = true
       end
 

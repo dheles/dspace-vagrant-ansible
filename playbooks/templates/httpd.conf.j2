@@ -1,0 +1,45 @@
+<VirtualHost *:80>
+   ServerName {{ app_fqdn }}
+   # TODO: ServerAlias
+
+   Redirect "/" "https://{{ app_fqdn }}/"
+
+   #ProxyPass         /  ajp://localhost:8009/
+   #ProxyPassReverse  /  ajp://localhost:8009/
+
+   ErrorLog "/var/log/httpd/{{ app_hostname }}-error.log"
+   CustomLog "/var/log/httpd/{{ app_hostname }}-access.log" combined
+ </VirtualHost>
+
+<VirtualHost *:443>
+   ServerName {{ app_fqdn }}
+   ProxyPass           / ajp://localhost:8009/
+   ProxyPassReverse    / ajp://localhost:8009/
+   ErrorLog "/var/log/httpd/{{ app_hostname }}_ssl-error.log"
+   CustomLog "/var/log/httpd/{{ app_hostname }}_ssl-access.log" combined
+
+
+       SSLEngine on
+
+       SSLProtocol all -SSLv2
+       SSLCipherSuite HIGH:MEDIUM:!aNULL:!MD5:!SEED:!IDEA
+       SSLCertificateFile /etc/pki/tls/certs/star_library_jhu_edu.crt
+       SSLCertificateKeyFile /etc/pki/tls/private/star_library_jhu_edu.key
+       SSLCertificateChainFile /etc/pki/tls/certs/star_library_jhu_edu_interm.crt
+
+       #SSLCACertificateFile /etc/pki/tls/certs/ca-bundle.crt
+
+       <Files ~ "\.(cgi|shtml|phtml|php3?)$">
+           SSLOptions +StdEnvVars
+       </Files>
+       <Directory "/var/www/cgi-bin">
+           SSLOptions +StdEnvVars
+       </Directory>
+
+       BrowserMatch "MSIE [2-5]" \
+                nokeepalive ssl-unclean-shutdown \
+                downgrade-1.0 force-response-1.0
+
+       CustomLog logs/ssl_request_log \
+                 "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+</VirtualHost>

@@ -1,0 +1,3 @@
+---
+- include: mount_assetstores.yml
+- include: adjust_config.yml

@@ -1,0 +1,8 @@
+---
+- hosts: app_servers
+  become: true
+  become_user: deploy
+
+  tasks:
+    - name: check database pre-migration
+      shell: bash -lc "{{ dspace_install }}/bin/dspace database info"

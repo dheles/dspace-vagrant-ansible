@@ -1,3 +1,4 @@
 ---
+- include: secure_ssh.yml
 - include: db_provision.yml
-- include: app_install.yml
+- include: app_provision.yml

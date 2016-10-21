@@ -1,0 +1,90 @@
+---
+- hosts: app_servers
+  become: true
+
+  tasks:
+    # TODO: move to general prereqs
+    - name: create application user
+      user:
+        name: "{{ app_user }}"
+        comment: "{{ app_user }} system account"
+
+  # ruby stuff
+    - name: install prereqs for the mirage2 responsive theme (official repo)
+      yum: name={{ item }} state=present
+      # become_user: root
+      with_items:
+        - git
+        - ruby
+        - ruby-devel
+        - gcc
+        - epel-release
+
+    - name: set GEM_HOME & GEM_PATH for all users and put the gem executable directory in everyone's PATH
+      template:
+        src: "templates/ruby.sh.j2"
+        dest: "/etc/profile.d/ruby.sh"
+
+    # TODO: (?) source /etc/profile ?
+    # - name: source profile
+    #   shell: "source /etc/profile"
+
+    - name: update rubygems
+      shell: "gem update --system"
+
+    - name: install sass & compass
+      gem:
+        name: "{{ item.name }}"
+        version: "{{ item.version }}"
+        state: present
+        user_install: false
+      with_items:
+        - name: "sass"
+          version: "{{ sass_version }}"
+        - name: "compass"
+          version: "{{ compass_version }}"
+
+  # node stuff...
+    - name: install prereqs for the mirage2 responsive theme (epel repo)
+      yum: name={{ item }} state=present enablerepo=epel
+      # become_user: root
+      with_items:
+        - nodejs
+        - npm
+
+    - name: create npm default directory
+      file:
+        path: "{{ base_install_dir }}/lib/node_modules"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        recurse: yes
+        state: directory
+
+    - name: set npm default directory
+      shell: "npm config set prefix {{ base_install_dir }}"
+
+    - name: set ownership of base install directory for npm
+      file:
+        path: "{{ base_install_dir }}"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        recurse: yes
+        state: directory
+
+    - name: set GRUNT_HOME & for all users and put the grunt executable directory in everyone's PATH
+      template:
+        src: "templates/grunt.sh.j2"
+        dest: "/etc/profile.d/grunt.sh"
+
+    - name: update npm
+      shell: "npm update -g npm"
+
+    - name: install bower & grunt
+      npm:
+        name: "{{ item.name }}"
+        global: true
+      with_items:
+        - name: "bower"
+        - name: "grunt"
+        - name: "grunt-cli"
+      become: true

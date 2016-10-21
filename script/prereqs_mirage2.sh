@@ -54,6 +54,9 @@ else
   fi
 fi
 
+# TODO: devise check
+sudo yum install -y ruby-devel gcc
+
 # node (no particular version)
 if node -v | grep "[[:digit:]]" ; then
   echo "--> node already installed, moving on."
@@ -102,8 +105,9 @@ else
 fi
 
 # grunt
-# NOTE: grunt-cli really doesn't like being reinstalled and finding grunt already present
-# TODO: this doesn't appear to be working to prevent reinstall...
+# TODO: confirm this is not needed: (alt: path /usr/local/bin/grunt)
+sudo npm install -g grunt
+
 if sudo su - $APPLICATION_USER bash -c "grunt --version" | grep "[[:digit:]]" ; then
   echo "--> grunt-cli already installed, moving on."
 else
@@ -115,10 +119,19 @@ else
     echo "ERROR: attempted to install grunt-cli, but something went wrong"
   fi
 fi
-# TODO: confirm this is not needed:
-# sudo su - $APPLICATION_USER bash -c "npm install -g grunt"
+
+# # set GEM_HOME & GEM_PATH for all users and put the gem executable directory in everyone's PATH
+# echo -e "export GRUNT_HOME=$INSTALL_DIR"      | sudo tee /etc/profile.d/grunt.sh
+# echo -e "export PATH=\$PATH:\$GRUNT_HOME" | sudo tee -a /etc/profile.d/grunt.sh
+# source /etc/profile
+
 
 # sass & compass
+# NOTE: updating system ruby to latest w/o specifying version.
+# pros & cons... however, compass stopped installing,
+# and was a documented step that helped get back on track
+sudo su - $APPLICATION_USER bash -c "gem update --system"
+
 SASS_VERSION="3.3.14"
 if sudo su - $APPLICATION_USER bash -c "sass -v" | grep $SASS_VERSION ; then
   echo "--> sass already installed, moving on."

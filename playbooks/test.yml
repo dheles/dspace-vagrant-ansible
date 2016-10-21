@@ -1,5 +1,10 @@
 ---
-- hosts: all
+- hosts: app_servers
+  become: true
+
+  handlers:
+    - include: handlers/restart_tomcat.yml
+
   tasks:
-    - name: test ansiblization
-      command: hostname
+    - name: install dspace
+      include: tasks/install_dspace.yml

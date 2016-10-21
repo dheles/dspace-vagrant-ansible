@@ -1,0 +1,73 @@
+---
+- name: post-install configuration
+  hosts: app_servers
+  become: yes
+  # become_user: "{{ app_user }}"
+
+  handlers:
+    - include: handlers/update_configs.yml
+
+  tasks:
+    - name: request item configuration
+      lineinfile:
+        dest: "{{ dspace_source }}/dspace/config/dspace.cfg"
+        regexp: "^request.item.helpdesk.override"
+        line: "request.item.helpdesk.override = true"
+      notify: update configs
+
+    # configure assetstores
+    - block:
+      - name: configure assetstore 0
+        lineinfile:
+          dest: "{{ dspace_source }}/dspace/config/dspace.cfg"
+          regexp: "^assetstore.dir\\s*="
+          line: "assetstore.dir = /mnt/dspace/storage/assetstore"
+        notify: update configs
+
+      - name: configure assetstore 1
+        lineinfile:
+          dest: "{{ dspace_source }}/dspace/config/dspace.cfg"
+          regexp: "^assetstore.dir.1"
+          insertafter: "^assetstore.dir\\s*="
+          line: "assetstore.dir.1 = /mnt/dspace/storage/assetstore1"
+        notify: update configs
+
+    # embargo settings
+    - block:
+      - name: configure embargo terms
+        lineinfile:
+          dest: "{{ dspace_source }}/dspace/config/dspace.cfg"
+          regexp: "^embargo.field.terms"
+          line: "embargo.field.terms = local.embargo.terms"
+        notify: update configs
+
+      - name: configure embargo lift
+        lineinfile:
+          dest: "{{ dspace_source }}/dspace/config/dspace.cfg"
+          regexp: "^embargo.field.lift"
+          line: "embargo.field.lift = local.embargo.lift"
+        notify: update configs
+
+      - name: raise bulk edit limit
+        lineinfile:
+          dest: "{{ dspace_source }}/dspace/config/modules/bulkedit.cfg"
+          regexp: "^gui-item-limit"
+          line: "gui-item-limit = 500"
+        notify: update configs
+
+    # # TODO: move to build.properties
+    # # handle settings
+    # - block:
+    #   - name: configure handle canonical prefix
+    #     lineinfile:
+    #       dest: "{{ dspace_source }}/dspace/config/dspace.cfg"
+    #       regexp: "^handle.canonical.prefix"
+    #       line: "handle.canonical.prefix = http://jhir.library.jhu.edu/handle/"
+    #     notify: update configs
+    #
+    #   - name: configure handle prefix
+    #     lineinfile:
+    #       dest: "{{ dspace_source }}/dspace/config/dspace.cfg"
+    #       regexp: "^handle.prefix"
+    #       line: "handle.prefix = 1774.2"
+    #     notify: update configs

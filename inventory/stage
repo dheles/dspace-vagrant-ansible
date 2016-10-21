@@ -1,12 +1,12 @@
-# NOTE: currently in a fake-out state while developing the process.
+# NOTE: NO LONGER in a fake-out state while developing the process.
 
 # stage:
 # ------------------
 [app]
-dspace-stage.jhu.dev
+dspace-stage.library.jhu.edu
 
 [db]
-dspace-db-stage.jhu.dev
+psql02.mse.jhu.edu
 
 [stage:children]
 app

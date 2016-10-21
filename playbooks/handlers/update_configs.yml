@@ -1,0 +1,5 @@
+---
+- name: update configs
+  # become: yes
+  # become_user: "{{ app_user }}"
+  include: tasks/update_configs_tasks.yml

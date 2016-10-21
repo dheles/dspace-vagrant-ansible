@@ -1,0 +1,7 @@
+---
+- name: install dspace
+  become: yes
+  become_user: "{{ app_user }}"
+  shell: "source /etc/profile && ant fresh_install"
+  args:
+    chdir: "{{ dspace_source }}/dspace/target/dspace-installer"

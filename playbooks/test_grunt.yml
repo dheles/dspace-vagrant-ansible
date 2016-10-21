@@ -1,0 +1,65 @@
+---
+- hosts: app_servers
+  become: true
+
+  tasks:
+    - name: set GRUNT_HOME & for all users and put the grunt executable directory in everyone's PATH
+      template:
+        src: "templates/grunt.sh.j2"
+        dest: "/etc/profile.d/grunt.sh"
+
+    - name: test - bash -lc
+      become: yes
+      become_user: "{{ app_user }}"
+      shell: bash -lc "echo $PATH && grunt --version"
+      args:
+        chdir: "{{ dspace_source }}/dspace/modules/xmlui-mirage2/target/themes/Mirage2"
+      register: result1
+
+    - name: bash -lc ; works, despite shorter path (TODO why?)
+      debug: var=result1
+
+    - name: test - become_user -i
+      become: yes
+      become_user: "{{ app_user }} -i"
+      shell: bash -lc "echo $PATH && grunt --version"
+      args:
+        chdir: "{{ dspace_source }}/dspace/modules/xmlui-mirage2/target/themes/Mirage2"
+      register: result2
+
+    - name: become_user -i ; less secure
+      debug: var=result2
+
+    - name: test - source /etc/profile
+      become: yes
+      become_user: "{{ app_user }}"
+      shell: "source /etc/profile && echo $PATH && grunt --version"
+      args:
+        chdir: "{{ dspace_source }}/dspace/modules/xmlui-mirage2/target/themes/Mirage2"
+      register: result3
+
+    - name: source /etc/profile ; my preferred solution
+      debug: var=result3
+
+    - name: test - directory
+      become: yes
+      become_user: "{{ app_user }}"
+      shell: "source /etc/profile && echo $PATH && grunt --version"
+      args:
+        chdir: "{{ dspace_source }}"
+      register: result4
+
+    - name: directory - no grunt
+      debug: var=result4
+
+    - name: test - bash executable
+      become: yes
+      become_user: "{{ app_user }}"
+      shell: "echo $PATH && grunt --version"
+      args:
+        chdir: "{{ dspace_source }}/dspace/modules/xmlui-mirage2/target/themes/Mirage2"
+        executable: /bin/bash
+      register: result5
+
+    - name: bash executable - fails
+      debug: var=result5

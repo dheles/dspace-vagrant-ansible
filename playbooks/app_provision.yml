@@ -1,0 +1,4 @@
+---
+- include: app_mirage_prereqs.yml
+- include: app_install.yml
+- include: migrate_dspace.yml

@@ -1,0 +1,42 @@
+---
+- name: mount assetstores
+  hosts: app_servers
+  become: yes
+
+  tasks:
+    - block:
+      - name: simulate stores
+        debug: var=stores_available
+
+      - file:
+          dest: "/opt/dspace/assetstore/{{ item }}"
+          owner: "{{ app_user }}"
+          group: "{{ app_user }}"
+          state: directory
+        with_items:
+          - assetstore
+          - assetstore1
+
+      - file:
+          dest: "/mnt/dspace"
+          state: directory
+
+      - file:
+          dest: /mnt/dspace/storage
+          src: /opt/dspace/assetstore
+          owner: "{{ app_user }}"
+          group: "{{ app_user }}"
+          state: link
+          force: yes
+      when: not stores_available
+
+    # TODO: test
+    # cis.mse.jhu.edu:/sam1/RESTORE           /mnt/dspace/storage     nfs     rw,tcp,intr,noatime     0 0
+    - name: mount stores
+      mount:
+        name: /mnt/dspace/storage
+        src: cis.mse.jhu.edu:/sam1/RESTORE
+        fstype: nfs
+        opts: rw,tcp,intr,noatime
+        state: present
+      when: stores_available

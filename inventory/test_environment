@@ -8,56 +8,56 @@
 
 # dev:
 # ------------------
-#[app_dev]
-#dspace-dev.jhu.dev
+[app_dev]
+dspace-dev.jhu.dev
 
-#[db_dev]
-#dspace-db-dev.jhu.dev
+[db_dev]
+dspace-db-dev.jhu.dev
 
-#[dev:children]
-#app_dev
-#db_dev
+[dev:children]
+app_dev
+db_dev
 
 # stage:
 # ------------------
-[app_stage]
-dspace-stage.jhu.dev
+#[app_stage]
+#dspace-stage.jhu.dev
 
-[db_stage]
-dspace-db-stage.jhu.dev
+#[db_stage]
+#dspace-db-stage.jhu.dev
 
-[stage:children]
-app_stage
-db_stage
+#[stage:children]
+#app_stage
+#db_stage
 
 # prod:
 # ------------------
 #[app_prod]
 #dspace-prod.jhu.dev
 
-[db_prod]
-dspace-db-prod.jhu.dev
+#[db_prod]
+#dspace-db-prod.jhu.dev
 
-[prod:children]
+#[prod:children]
 #app_prod
-db_prod
+#db_prod
 
 # groups:
 # ------------------
 [app_servers:children]
-#app_dev
-app_stage
+app_dev
+#app_stage
 #app_prod
 
 [app_not_prod:children]
-#app_dev
-app_stage
+app_dev
+#app_stage
 
 [db_servers:children]
-#db_dev
-db_stage
-db_prod
+db_dev
+#db_stage
+#db_prod
 
 [db_not_prod:children]
-#db_dev
-db_stage
+db_dev
+#db_stage

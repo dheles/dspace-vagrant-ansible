@@ -1,0 +1,99 @@
+---
+# {{ app_user_arg }} {{ db_hostname_arg }} {{ domain_arg }} {{ db_name_arg }}
+# {{ db_user_arg }} {{ db_pass_arg }} {{ app_ip_arg }} {{ app_hostname_arg }}
+
+- name: setup dspace install directory
+  file:
+    path: "{{ dspace_install }}"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    state: directory
+
+- block:
+  # NOTE: keeping the release archive around to improve idempotency
+  - name: get dspace release
+    get_url:
+      url: "{{ release }}"
+      dest: "{{ dspace_source }}.tar.gz"
+      checksum: "{{ checksum_algorithm }}:{{ release_checksum }}"
+    register: release_downloaded
+
+  # - name: check result
+  #   debug: var=release_downloaded
+
+  - name: unpack release
+    unarchive:
+      src: "{{ dspace_source }}.tar.gz"
+      dest: "{{ application_user_home }}"
+      owner: "{{ app_user }}"
+      group: "{{ app_user }}"
+      copy: no
+    when: release_downloaded.changed
+
+  - name: remove previous install
+    file:
+      path: "{{ dspace_source }}"
+      state: absent
+    when: release_downloaded.changed
+
+  - name: rename release
+    command: "mv {{ application_user_home }}/{{ release_dir }} {{ dspace_source }}"
+    when: release_downloaded.changed
+
+  # NOTE: necessary to chown some files deep in the tree that
+  #  were resistant to the implicit chown in the unarchive step
+  - name: set ownership of source directory
+    file:
+      path: "{{ dspace_source }}"
+      owner: "{{ app_user }}"
+      group: "{{ app_user }}"
+      recurse: yes
+      state: directory
+  when: not build_from_repo
+
+- block:
+  - name: clone dspace from repo
+    git:
+      repo: "{{ repo }}"
+      dest: "{{ dspace_source }}"
+      version: "{{ branch | default('HEAD') }}"
+    become: yes
+    become_user: "{{ app_user }}"
+  when: build_from_repo
+
+- name: build properties
+  template:
+    src: ../templates/build.properties.j2
+    dest: "{{ dspace_source }}/build.properties"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+
+- block:
+  - name: disable current theme
+    replace:
+      dest: "{{ dspace_source }}/dspace/config/xmlui.xconf"
+      regexp: '(^\s*)(<theme name="Atmire.*/>)'
+      replace: '\1<!-- \2 -->'
+
+  - name: "enable the {{ theme_name }} theme"
+    lineinfile:
+      dest: "{{ dspace_source }}/dspace/config/xmlui.xconf"
+      insertbefore: '(^\s*)(</themes>)'
+      regexp: "(^\\s*)(<theme name=\"{{ theme_name }}\")"
+      line:   "        <theme name=\"{{ theme_name }}\" regex=\".*\" path=\"{{ theme_path }}\" />"
+  when: "{{ use_alt_theme }}"
+
+# - name: set ownership of source directory (again, JIC)
+#   file:
+#     path: "{{ dspace_source }}"
+#     owner: "{{ app_user }}"
+#     group: "{{ app_user }}"
+#     recurse: yes
+#     state: directory
+
+- name: maven package
+  become: yes
+  become_user: "{{ app_user }}"
+  shell: "source /etc/profile && mvn clean package -Dmirage2.on=true -Dmirage2.deps.included=false"
+  args:
+    chdir: "{{ dspace_source }}"

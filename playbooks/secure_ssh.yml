@@ -1,0 +1,25 @@
+---
+- name: secure ssh
+  hosts: all
+  become: yes
+
+  handlers:
+    - name: restart ssh
+      service: name=sshd state=restarted
+
+  tasks:
+    - name: disallow password authentication for "{{ admin }}" user
+      blockinfile:
+        dest: /etc/ssh/sshd_config
+        block: |
+          Match User {{ admin }}
+              PasswordAuthentication no
+      notify: restart ssh
+
+    - name: disallow root login
+      lineinfile:
+        dest: "/etc/ssh/sshd_config"
+        regexp: '^PermitRootLogin\s+no'
+        line: "PermitRootLogin no"
+        state: present
+      notify: restart ssh

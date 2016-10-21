@@ -1,0 +1,10 @@
+---
+
+- name: configure tomcat context
+  template:
+    src: "templates/context.xml.j2"
+    dest: "{{ catalina_home }}/conf/Catalina/localhost/{{ (item.default_webapp | default(false)) | ternary('ROOT', item.name) }}.xml"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+  with_items: "{{ dspace_webapps }}"
+  notify: restart tomcat

@@ -1,4 +1,6 @@
 ---
+# vars for provisioning scripts:
+# ------------------------------
 # domain:           ENVIRONMENT VARS
 domain_arg:       "-d {{ domain }}"
 # db_ip:            "{{ ansible_eth1.ipv4.address }}"
@@ -21,7 +23,72 @@ tomcat_admin:     "dspace"
 tomcat_admin_arg: "-ta {{ tomcat_admin }}"
 #tomcat_pass:      ENVIRONMENT VARS
 tomcat_pass_arg:  "-tp {{ tomcat_pass }}"
+app_fqdn:         "{{ app_hostname }}.{{ domain }}"
 
+dspace_name:              "JScholarship"
+handle_canonical_prefix:  "http://jhir.library.jhu.edu/handle/"
+handle_prefix:            "1774.2"
 
+# theme settings
+use_alt_theme: true
+theme_name: "Mirage 2"
+theme_path: "Mirage2/"
+
+# vars for prereqs:
+# -----------------
+base_install_dir: "/usr/local"
+sass_version: "3.3.14"
+compass_version: "1.0.1"
+
+# vars for building and installing dspace:
+# ---------------------------------
+dspace_version: "5.6"
+dspace_install_dir: "/opt"
+dspace_install: "{{ dspace_install_dir }}/dspace"
+application_user_home: "/home/{{ app_user }}"
+dspace_source_dir: "dspace-{{ dspace_version }}"
+dspace_source: "{{ application_user_home }}/{{ dspace_source_dir }}"
+# TODO: review, with an eye toward always building from release
+# and automating customizations (thus removing need for a repo)
+build_from_repo: false
+# to install from a repo:
+repo: "https://github.com/jhu-sheridan-libraries/DSpace.git"
+branch: "JHU"
+# to install from a release:
+release_dir: "{{ dspace_source_dir }}-src-release" # appended to dspace_source_dir, if needed
+release: "https://github.com/DSpace/DSpace/releases/download/dspace-{{ dspace_version }}/{{ release_dir }}.tar.gz"
+# FWIW, this was not provided in the github repo.
+# i calculated it myself after downloading
+checksum_algorithm: "sha256"
+release_checksum: "92ade77f48b8c2a563b5667e080529e3de2eafa466ece726b71c5dd7250d48ae"
+
+# deployment vars
+# ---------------
+catalina_home: "/usr/local/tomcat"
+dspace_webapps:
+  - name: "xmlui"
+    default_webapp: true
+  - name: "solr"
+    address_restriction: true
+  - name: "oai"
+  - name: "rdf"
+  - name: "rest"
+  - name: "sword"
+  - name: "swordv2"
+# TODO: remember to set otherwise for production
+reloadable: true
+caching_allowed: false
+# TODO: make dynamic/adapt for dev
+restricted_ip_range: "10.0.0.0/8"
+production: false # TODO: use or lose
+
+# database vars (see environment-based group_vars for others)
+db_fqdn: "{{ db_hostname }}.{{ domain }}"
+db_port: "5432"
+db_url: "jdbc:postgresql://{{ db_fqdn }}:{{ db_port }}/{{ db_name }}"
+
+# misc vars:
+# -----------
 admin: "deploy"
 anonymized_backup: "anonymized_backup.sql"
+stores_available: false
