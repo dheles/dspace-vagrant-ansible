@@ -43,6 +43,8 @@
           version: "{{ sass_version }}"
         - name: "compass"
           version: "{{ compass_version }}"
+        - name: "oj" # avoid MultiJson warnings about ok_json
+          version: "" # defaults to latest
 
   # node stuff...
     - name: install prereqs for the mirage2 responsive theme (epel repo)

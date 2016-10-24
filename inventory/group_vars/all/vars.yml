@@ -32,7 +32,15 @@ handle_prefix:            "1774.2"
 # theme settings
 use_alt_theme: true
 theme_name: "Mirage 2"
-theme_path: "Mirage2/"
+theme_path: "Mirage2"
+full_theme_path: "{{ dspace_install }}/webapps/xmlui/themes/{{ theme_path }}"
+
+# vars for branding
+# -----------------
+logo_blue:    "002D72" #	PMS 288C
+medium_blue:  "005EB8" # PMS 300C
+blue_grey:    "A7BCD6" #	PMS 651C
+logo:         "sheridan-libraries.logo.small.horizontal.white.svg"
 
 # vars for prereqs:
 # -----------------

@@ -1,0 +1,26 @@
+---
+- hosts: app_servers
+  become: true
+  become_user: "{{ app_user }}"
+
+  handlers:
+    - include: handlers/update_styles.yml
+
+  tasks:
+    - name: brand bootstrap variables
+      template:
+        src: templates/bootstrap_variables.scss.j2
+        dest: "{{ full_theme_path }}/styles/classic_mirage_color_scheme/_bootstrap_variables.scss"
+      notify: update styles
+
+    - name: brand additional styles
+      template:
+        src: templates/style.scss.j2
+        dest: "{{ full_theme_path }}/styles/_style.scss"
+      notify: update styles
+
+    - name: brand logo
+      copy:
+        src: "files/{{ logo }}"
+        dest: "{{ full_theme_path }}/images/DSpace-logo-line.svg"
+      notify: update styles

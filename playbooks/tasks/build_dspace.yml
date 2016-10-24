@@ -80,7 +80,7 @@
       dest: "{{ dspace_source }}/dspace/config/xmlui.xconf"
       insertbefore: '(^\s*)(</themes>)'
       regexp: "(^\\s*)(<theme name=\"{{ theme_name }}\")"
-      line:   "        <theme name=\"{{ theme_name }}\" regex=\".*\" path=\"{{ theme_path }}\" />"
+      line:   "        <theme name=\"{{ theme_name }}\" regex=\".*\" path=\"{{ theme_path }}/\" />"
   when: "{{ use_alt_theme }}"
 
 # - name: set ownership of source directory (again, JIC)
