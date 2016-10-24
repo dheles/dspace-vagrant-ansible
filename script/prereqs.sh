@@ -80,9 +80,9 @@ fi
 # java
 JAVA_VERSION="1.7.0"
 JAVA_HOME="/usr/lib/jvm/java"
-if java -version 2>&1 | grep -q $JAVA_VERSION; then
-  echo "--> java $JAVA_VERSION already installed, moving on."
-else
+# if java -version 2>&1 | grep -q $JAVA_VERSION; then
+#   echo "--> java $JAVA_VERSION already installed, moving on."
+# else
   echo "--> Installing java $JAVA_VERSION..."
 	sudo yum install -y java-$JAVA_VERSION-openjdk-devel
 	echo -e "export JAVA_HOME=$JAVA_HOME" | sudo tee /etc/profile.d/java.sh
@@ -92,7 +92,7 @@ else
   else
     echo "ERROR: attempted to install java $JAVA_VERSION, but something went wrong"
   fi
-fi
+# fi
 
 # maven
 MAVEN_VERSION="3.3.9"

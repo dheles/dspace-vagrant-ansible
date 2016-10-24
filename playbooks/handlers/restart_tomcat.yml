@@ -2,4 +2,4 @@
 - name: restart tomcat
   service: name=tomcat state=restarted
   become: yes
-  become_user: root
+  # become_user: root

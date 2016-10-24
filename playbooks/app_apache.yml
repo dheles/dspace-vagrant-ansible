@@ -1,0 +1,10 @@
+---
+- hosts: app_servers
+  become: true
+  become_user: "{{ admin }}"
+
+  tasks:
+    - name: install apache
+      script: ../script/app_apache.sh {{ app_hostname_arg }} {{ domain_arg }}
+      register: result
+      changed_when: "'already installed' not in result.stdout"

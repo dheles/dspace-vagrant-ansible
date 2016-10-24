@@ -1,4 +1,7 @@
 ---
 - include: app_mirage_prereqs.yml
 - include: app_install.yml
-- include: migrate_dspace.yml
+- include: migrate_database.yml
+- include: create_administrator.yml
+- include: app_apache.yml
+- include: post_install.yml

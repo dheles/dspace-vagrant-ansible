@@ -1,4 +1,8 @@
 ---
+- name: stop tomcat
+  service: name=tomcat state=stopped
+  become: yes
+  
 - name: install dspace
   become: yes
   become_user: "{{ app_user }}"

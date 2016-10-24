@@ -1,0 +1,17 @@
+---
+- hosts: app_servers
+  become: true
+  become_user: "{{ app_user }}"
+
+  tasks:
+    - name: check database pre-migration
+      shell: "{{ dspace_install }}/bin/dspace database info"
+      register: pre_check
+
+    - name: migrate database
+      shell: "{{ dspace_install }}/bin/dspace database migrate"
+      register: migration_result
+
+    - name: check database post-migration
+      shell: "{{ dspace_install }}/bin/dspace database info"
+      register: post_check

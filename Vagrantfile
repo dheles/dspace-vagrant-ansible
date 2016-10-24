@@ -58,43 +58,27 @@ Vagrant.configure(2) do |config|
         setup_complete = true
       end
 
-      if setup_complete
-        host.vm.provision "ansible" do |ansible|
-          # ansible.verbose = "v"
-          ansible.playbook = "playbooks/provision.yml"
-
-          # NOTE: not reading from ansible.cfg
-          ansible.inventory_path = "inventory/test_environment"
-
-          # NOTE: can't just leave this out and expect it to default to "all"
-          ansible.limit = "all"
-
-          # NOTE: if this doesn't agree with an inventory entry,
-          # group_vars may not apply correctly;
-          # if it doesn't agree with vagrant's names for things, it won't run.
-          # therefore, it's best to specify "all" and filter in the playbooks
-          # ansible.limit = "#{short_name}"
-        end
-      end
+      # if setup_complete
+      #   host.vm.provision "ansible" do |ansible|
+      #     # ansible.verbose = "v"
+      #     ansible.playbook = "playbooks/provision.yml"
+      #
+      #     # NOTE: not reading from ansible.cfg
+      #     ansible.inventory_path = "inventory/test_environment"
+      #
+      #     # NOTE: can't just leave this out and expect it to default to "all"
+      #     ansible.limit = "all"
+      #
+      #     # NOTE: if this doesn't agree with an inventory entry,
+      #     # group_vars may not apply correctly;
+      #     # if it doesn't agree with vagrant's names for things, it won't run.
+      #     # therefore, it's best to specify "all" and filter in the playbooks
+      #     # ansible.limit = "#{short_name}"
+      #   end
+      # end
 
     end
   end
-
-  # if setup_complete
-  #   # provision db servers
-  #   config.vm.provision "ansible" do |ansible|
-  #     ansible.playbook = "playbooks/db_provision.yml"
-  #     # NOTE: not reading from ansible.cfg
-  #     ansible.inventory_path = "inventory/test_environment"
-  #     # NOTE: can't just leave this out and expect it to default to "all"
-  #     ansible.limit = "all"
-  #     # NOTE: if this doesn't agree with an inventory entry,
-  #     # group_vars may not apply correctly;
-  #     # if it doesn't agree with vagrant's names for things, it won't run.
-  #     # therefore, it's best to specify "all" and filter in the playbooks
-  #     # ansible.limit = "#{short_name}"
-  #   end
-  # end
 
   # # vm (re)defined here must match a shortname above
   # config.vm.define "app" do |app|

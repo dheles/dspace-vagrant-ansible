@@ -1,5 +1,66 @@
 ---
+# NOTE: re: multi-step handlers
+#
+# 1) if your handler includes your tasks, they will be run
+#   once for each time the handler is notified. e.g.
+# - name: update configs
+#   include: tasks/update_configs_tasks.yml
+#
+# 2) the debug module cannot be used to notify your other tasks.
+#    it will neither notify nor register, so this won't work...
+# - name: update configs
+#   debug: msg="handling configuration update..."
+#   notify: first actual update task
+#   register: update_init
+# - name: first actual update task
+#   some_module: do something
+#   when: update_init
+#
+# 3) blocks can't have names, so this won't work either...
+# - name: update configs
+#   block:
+#     - name: my first task
+#       some_module: do something
+#     - name: my second task
+#       some_other_module: do something else
+#
+# 4) in the upcoming ansible 2.2 update,
+#    multiple handlers can listen for the same notification
+#    http://docs.ansible.com/ansible/playbooks_intro.html#handlers-running-operations-on-change
+#    ...that'll be great
+#
+# in the meantime, we have to do give our first (actual) task
+# the somewhat misleading name of the whole handler
+# and then we can either cascade registered results and when statements
+# or chain notify statements (as seen below)
+# REM: notified names must be unique
+
 - name: update configs
-  # become: yes
-  # become_user: "{{ app_user }}"
-  include: tasks/update_configs_tasks.yml
+# - name: maven package updates
+  become: true
+  become_user: "{{ app_user }}"
+  shell: "source /etc/profile && mvn package -Dmirage2.on=true -Dmirage2.deps.included=false"
+  args:
+    chdir: "{{ dspace_source }}/dspace"
+  notify: stop tomcat for updates
+
+- name: stop tomcat for updates
+  become: true
+  service: name=tomcat state=stopped
+  notify: ant update configs
+
+- name: ant update configs
+  become: true
+  become_user: "{{ app_user }}"
+  shell: "source /etc/profile && ant update_configs"
+  args:
+    chdir: "{{ dspace_source }}/dspace/target/dspace-installer"
+  notify: start tomcat for updates
+
+- name: start tomcat for updates
+  become: true
+  service: name=tomcat state=started
+  notify: configs updated
+
+- name: configs updated
+  debug: msg="...configuration updated"
