@@ -1,10 +1,33 @@
 ---
 - hosts: app_servers
   become: true
-  become_user: "{{ admin }}"
 
   tasks:
     - name: install apache
-      script: ../script/app_apache.sh {{ app_hostname_arg }} {{ domain_arg }}
-      register: result
-      changed_when: "'already installed' not in result.stdout"
+      yum: name={{ item }} state=present
+      with_items:
+        - httpd
+        - mod_ssl
+        - openssl
+
+    - name: configure apache
+      template:
+        src: templates/httpd.conf.j2
+        dest: "/etc/httpd/conf.d/{{ app_hostname }}.conf"
+
+    - name: create self-signed SSL cert
+      command: >
+        openssl req -new -nodes -x509
+        -subj "{{ ssl_certificate_subj }}"
+        -days 3650
+        -keyout "{{ ssl_certificate_key_path }}/{{ ssl_certificate_key_file }}"
+        -out "{{ ssl_certificate_path}}/{{ ssl_certificate_file }}"
+        -extensions v3_ca
+        creates="{{ ssl_certificate_path}}/{{ ssl_certificate_file }}"
+      when: "{{ self_sign_cert }}"
+
+    - name: (re)start apache service
+      service:
+        name: httpd
+        enabled: true
+        state: restarted

@@ -17,3 +17,12 @@ admin_firstname: "{{ vault_admin_firstname }}"
 admin_lastname: "{{ vault_admin_lastname }}"
 admin_password: "{{ vault_admin_password }}"
 admin_language: "English"
+
+# SSL vars
+self_sign_cert:             true
+ssl_certificate_file:       "{{ app_fqdn | replace('.', '_') }}.crt" # "star_library_jhu_edu.crt"
+ssl_certificate_key_file:   "{{ app_fqdn | replace('.', '_') }}.key" # "star_library_jhu_edu.key"
+ssl_certificate_chain_file: false                # "star_library_jhu_edu_interm.crt"
+ssl_certificate_path:       "/etc/pki/tls/certs"
+ssl_certificate_key_path:   "/etc/pki/tls/private"
+ssl_certificate_subj:       "/C=US/ST=Maryland/L=Baltimore/O=JHU/CN={{ app_fqdn }}"

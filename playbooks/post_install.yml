@@ -1,3 +1,4 @@
 ---
 - include: mount_assetstores.yml
+- include: app_branding.yml
 - include: adjust_config.yml
