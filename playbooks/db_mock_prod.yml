@@ -2,7 +2,7 @@
 - name: mock production database
   hosts: db_prod
   become: yes
-  become_user: "{{ admin }}"
+  become_user: "{{ login_user }}"
 
   vars:
     prod_backup_local: "../db_backup/production_backup.sql"
@@ -32,7 +32,7 @@
     - name: ensure admin user has necessary permissions
       include: tasks/pgpass.yml
       vars:
-        admin_user: "{{ admin }}"
+        admin_user: "{{ login_user }}"
         database: "{{ db_name }}"
         user: "{{ db_user }}"
         password: "{{ db_pass }}"

@@ -8,11 +8,11 @@
       service: name=sshd state=restarted
 
   tasks:
-    - name: disallow password authentication for "{{ admin }}" user
+    - name: disallow password authentication for "{{ login_user }}" user
       blockinfile:
         dest: /etc/ssh/sshd_config
         block: |
-          Match User {{ admin }}
+          Match User {{ login_user }}
               PasswordAuthentication no
       notify: restart ssh
 

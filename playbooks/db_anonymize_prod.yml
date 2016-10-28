@@ -3,7 +3,7 @@
 - name: create anonymized backup of production database
   hosts: db_prod
   become: yes
-  become_user: "{{ admin }}"
+  become_user: "{{ login_user }}"
 
   vars:
     anon_db: "dspace-anon"
@@ -25,7 +25,7 @@
     - name: add pgpass entry for anonymized database
       include: tasks/pgpass.yml
       vars:
-        admin_user: "{{ admin }}"
+        admin_user: "{{ login_user }}"
         database: "{{ anon_db }}"
         user: "{{ db_user }}"
         password: "{{ db_pass }}"
@@ -48,7 +48,7 @@
     - name: run query to anonymize database
       include: tasks/query_db.yml
       vars:
-        admin_user: "{{ admin }}"
+        admin_user: "{{ login_user }}"
         database: "{{ anon_db }}"
         user: "{{ db_user }}"
         query_file: "queries/anonymize_db.sql"
@@ -78,7 +78,7 @@
     - name: remove pgpass entry
       include: tasks/pgpass.yml
       vars:
-        admin_user: "{{ admin }}"
+        admin_user: "{{ login_user }}"
         database: "{{ anon_db }}"
         user: "{{ db_user }}"
         password: "{{ db_pass }}"

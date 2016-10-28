@@ -1,7 +1,7 @@
 ---
 - hosts: db_stage
   become: yes
-  become_user: "{{ admin }}"
+  become_user: "{{ login_user }}"
 
   vars:
     old_handle: "http://hdl.handle.net/1774"
@@ -23,7 +23,7 @@
     - name: add pgpass entry for database
       include: tasks/pgpass.yml
       vars:
-        admin_user: "{{ admin }}"
+        admin_user: "{{ login_user }}"
         database: "{{ db_name }}"
         user: "{{ db_user }}"
         password: "{{ db_pass }}"
@@ -32,7 +32,7 @@
     - name: run query to modify handles in the database
       include: tasks/query_db.yml
       vars:
-        admin_user: "{{ admin }}"
+        admin_user: "{{ login_user }}"
         database: "{{ db_name }}"
         user: "{{ db_user }}"
         query_file: "queries/rehandle.sql.j2"
@@ -41,19 +41,19 @@
     #   copy:
     #     src: "{{ item.src }}"
     #     dest: "{{ item.dest }}"
-    #     owner: "{{ admin }}"
-    #     group: "{{ admin }}"
+    #     owner: "{{ login_user }}"
+    #     group: "{{ login_user }}"
     #     mode: 0644
     #   with_items:
     #     - src: "queries/rehandle.sql"
-    #       dest: "/home/{{ admin }}/rehandle.sql"
+    #       dest: "/home/{{ login_user }}/rehandle.sql"
     #
     # - name: adjust handle URIs in the database
     #   shell: psql -U "{{ db_user }}" "{{ db_name }}" -v old_handle="'{{ item.old_handle }}'" -v new_handle="'{{ item.new_handle }}'" -v pattern="'{{ item.old_handle }}%'" < "{{ item.file }}"
     #   register: rehandled
     #   become: yes
     #   with_items:
-    #     - file: "/home/{{ admin }}/rehandle.sql"
+    #     - file: "/home/{{ login_user }}/rehandle.sql"
     #       old_handle: "http://hdl.handle.net/1774"
     #       new_handle: "http://jhir.library.jhu.edu/handle/1774"
     # - debug: var=rehandled.results[0].stdout_lines
@@ -63,4 +63,4 @@
     #     path: "{{ item.path }}"
     #     state: absent
     #   with_items:
-    #     - path: "/home/{{ admin }}/rehandle.sql"
+    #     - path: "/home/{{ login_user }}/rehandle.sql"

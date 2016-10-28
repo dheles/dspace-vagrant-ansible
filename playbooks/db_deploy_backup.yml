@@ -10,7 +10,7 @@
 - name: transfer backup from server
   hosts: db_prod
   become: yes
-  become_user: "{{ admin }}"
+  become_user: "{{ login_user }}"
 
   tasks:
     - name: transfer backup file from db_prod
@@ -31,7 +31,7 @@
 - name: deploy backup to other server(s)
   hosts: db_not_prod
   become: yes
-  become_user: "{{ admin }}"
+  become_user: "{{ login_user }}"
 
   handlers:
     - include: handlers/restart_postgres.yml
@@ -44,8 +44,8 @@
       copy:
         src: "../db_backup/{{ anonymized_backup }}"
         dest: "~/{{ anonymized_backup }}"
-        owner: "{{ admin }}"
-        group: "{{ admin }}"
+        owner: "{{ login_user }}"
+        group: "{{ login_user }}"
 
     - name: restore db from backup
       include: tasks/restore_db.yml
