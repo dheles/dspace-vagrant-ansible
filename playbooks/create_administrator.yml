@@ -4,10 +4,8 @@
 
   tasks:
     # TODO: confirm belief that tomcat must run to load dspace webapp at least once before creating administrator
-    # TODO: continue: "Failed to start tomcat.service: Interactive authentication required."
     - name: start tomcat
       service: name=tomcat state=started
-      # become_user: "{{ admin }}"
 
     - name: create administrator
       shell: "{{ dspace_install }}/bin/dspace create-administrator -e {{ admin_email }} -f {{ admin_firstname }} -l {{ admin_lastname }} -c {{ admin_language }} -p {{ admin_password }}"

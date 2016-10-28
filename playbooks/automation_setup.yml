@@ -1,0 +1,77 @@
+---
+# TODO: consider removing temp and backup files on success
+
+# NOTE: this is only useful in an environment were we begin with VMs
+# to which we already have access as authenticated users, but which do not have
+# the standard user account we prefer to use for software
+# installation, configuration, and management.
+# It is useful for establishing a common, consistent environment
+# before proceeding with our other playbooks.
+# Current expectation is that configuration will be modified for it,
+# it will run in isolation, and then the configs will be reset before proceeding.
+# The following must be set in ansible.cfg
+# (unfortunately they won't be read as playbook vars)
+# (don't forget to remove them before running other plays):
+# remote_user = [your pre-authorized user account]
+# ask_pass = True
+# ask_sudo_pass = True
+
+- name: set up for automation
+  hosts: all
+  become: true
+
+  tasks:
+    - name: gather facts
+      setup:
+      register: facts
+
+    - name: report facts
+      debug: var=facts
+
+    # NOTE: need this before working with sudoers file, if SELinux is enforcing
+    - name: install SELinux management libraries
+      yum: name=libselinux-python state=present
+
+    - name: add login user
+      user:
+        name: "{{ login_user }}"
+
+    # give login user sudo (carefully)...
+    - block:
+      - name: copy sudoers file for editing
+        copy:
+          src:  "/etc/sudoers"
+          dest: "/tmp/sudoers.edit"
+          remote_src: true
+
+      - name: give login user passwordless sudo
+        lineinfile:
+          dest: "/tmp/sudoers.edit"
+          regexp: "^{{ login_user }}"
+          line: "{{ login_user }} ALL=(ALL) NOPASSWD: ALL"
+
+      - name: validate and implement edits
+        copy:
+          src: "/tmp/sudoers.edit"
+          dest: "/etc/sudoers"
+          validate: 'visudo -cf %s'
+          remote_src: true
+          backup: true
+    # ...end block
+
+    - name: deploy ssh key for login user
+      authorized_key:
+        user: "{{ login_user }}"
+        key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/' + login_user_key) }}"
+
+- name: add entries to ssh_config
+  hosts: localhost
+
+  tasks:
+    - name: add entries to ssh_config
+      blockinfile:
+        dest: ~/.ssh/config
+        marker: "# {mark} dspace prod"
+        block: |
+          {{ item }}
+      with_template: templates/ssh_config.j2

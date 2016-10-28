@@ -97,6 +97,6 @@ db_url: "jdbc:postgresql://{{ db_fqdn }}:{{ db_port }}/{{ db_name }}"
 
 # misc vars:
 # -----------
-admin: "deploy"
+login_user: "deploy"
 anonymized_backup: "anonymized_backup.sql"
 stores_available: false

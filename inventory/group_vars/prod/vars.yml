@@ -1,8 +1,37 @@
 ---
-domain:           "jhu.dev"
-db_ip:            "10.10.20.106"
-db_hostname:      "dspace-db-prod"
-app_ip:           "10.10.20.105"
+domain:           "mse.jhu.edu"
+db_ip:            "10.162.127.103"
+db_hostname:      "psql03"
+app_ip:           "10.162.127.158"
 app_hostname:     "dspace-prod"
 db_pass:          "{{ vault_db_pass }}"
 tomcat_pass:      "{{ vault_tomcat_pass }}"
+
+# setup vars
+login_user_key: "dspace_prod.pub"
+
+# email vars:
+mail_server: "{{ vault_mail_server }}"
+mail_admin: "{{ vault_mail_admin }}"
+
+# admin vars:
+admin_email: "{{ vault_admin_email }}"
+admin_firstname: "{{ vault_admin_firstname }}"
+admin_lastname: "{{ vault_admin_lastname }}"
+admin_password: "{{ vault_admin_password }}"
+admin_language: "English"
+
+# SSL vars
+self_sign_cert:             false
+ssl_certificate_file:       "star_mse.jhu.edu.crt"
+ssl_certificate_key_file:   "star_mse.jhu.edu.key"
+ssl_certificate_chain_file: "star_mse.jhu.edu_interim.crt"
+ssl_certificate_path:       "/etc/pki/tls/certs"
+ssl_certificate_key_path:   "/etc/pki/tls/private"
+ssl_certificate_subj:       ""
+
+# deployment vars
+# ---------------
+reloadable: false
+caching_allowed: true
+production: True # TODO: use or lose

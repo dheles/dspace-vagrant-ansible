@@ -1,13 +1,11 @@
-# NOTE: currently in a fake-out state while developing the process.
-
-# prod:
+# prod (network VMs):
 # ------------------
-[app]
-dspace-prod.jhu.dev
+[app_servers]
+dspace-prod.mse.jhu.edu
 
-[db]
-dspace-db-prod.jhu.dev
+[db_servers]
+psql03.mse.jhu.edu
 
 [prod:children]
-app
-db
+app_servers
+db_servers
