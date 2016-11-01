@@ -15,6 +15,25 @@
         line: "request.item.helpdesk.override = true"
       notify: update configs
 
+    - name: use proxies
+      lineinfile:
+        dest: "{{ dspace_source }}/dspace/config/dspace.cfg"
+        regexp: "^#useProxies"
+        line: "useProxies = true"
+      notify: update configs
+
+    - name: configure authentication methods
+      template:
+        src: templates/authentication.cfg.j2
+        dest: "{{ dspace_source }}/dspace/config/modules/authentication.cfg"
+      notify: update configs
+
+    - name: configure shibboleth authentication
+      template:
+        src: templates/authentication-shibboleth.cfg.j2
+        dest: "{{ dspace_source }}/dspace/config/modules/authentication-shibboleth.cfg"
+      notify: update configs
+
     # configure assetstores
     - block:
       - name: configure assetstore 0
