@@ -1,7 +1,7 @@
 <?xml version='1.0'?>
 <Context
   docBase="{{ dspace_install }}/webapps/{{ item.name }}"
-{% if item.default_webapp | default(false) }
+{% if item.default_webapp | default(false) %}
   useRelativeRedirects="false"
 {% endif %}
   reloadable="{{ reloadable }}" >

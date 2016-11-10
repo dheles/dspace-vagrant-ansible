@@ -9,5 +9,5 @@
   become: yes
   become_user: root
   with_items:
-    - python-psycopg2
     - postgresql-libs
+    - python-psycopg2

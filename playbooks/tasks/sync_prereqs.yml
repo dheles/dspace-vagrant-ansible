@@ -1,0 +1,6 @@
+---
+- name: install prereqs for synchronize module
+  yum: name={{ item }} state=present
+  become: yes
+  with_items:
+    - rsync

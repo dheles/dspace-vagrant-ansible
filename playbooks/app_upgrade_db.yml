@@ -1,6 +1,6 @@
 ---
 - name: upgrade dspace database, using tools in the application server
-  hosts: app_not_prod
+  hosts: app_servers
   become: yes
 
   tasks:

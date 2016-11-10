@@ -1,8 +1,44 @@
 ---
-domain:           "jhu.dev"
-db_ip:            "10.10.20.104"
-db_hostname:      "dspace-db-stage"
-app_ip:           "10.10.20.103"
+domain:           "mse.jhu.edu"
+db_ip:            "10.162.127.245"
+db_hostname:      "psql02"
+app_ip:           "10.162.127.177"
 app_hostname:     "dspace-stage"
 db_pass:          "{{ vault_db_pass }}"
 tomcat_pass:      "{{ vault_tomcat_pass }}"
+
+# email vars:
+mail_server: "{{ vault_mail_server }}"
+mail_admin: "{{ vault_mail_admin }}"
+
+# admin vars:
+admin_email: "{{ vault_admin_email }}"
+admin_firstname: "{{ vault_admin_firstname }}"
+admin_lastname: "{{ vault_admin_lastname }}"
+admin_password: "{{ vault_admin_password }}"
+admin_language: "English"
+
+# SSL vars
+self_sign_cert:             false
+ssl_certificate_file:       "star_library_jhu_edu.crt"
+ssl_certificate_key_file:   "star_library_jhu_edu.key"
+ssl_certificate_chain_file: "star_library_jhu_edu_interm.crt"
+ssl_certificate_path:       "/etc/pki/tls/certs"
+ssl_certificate_key_path:   "/etc/pki/tls/private"
+ssl_certificate_subj:       ""
+
+# SSH vars
+environ:                "stage" # dev || stage || prod
+login_user_key:         "dspace_stage"
+create_login_user_key:  false
+
+# deployment vars
+# ---------------
+reloadable: true
+caching_allowed: false
+production: False # TODO: use or lose
+
+# assetstore vars
+# ---------------
+stores_available: true
+stores_fstab: "sam.mse.jhu.edu:/apps/dspace.snapshot"

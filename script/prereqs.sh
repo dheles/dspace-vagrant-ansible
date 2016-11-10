@@ -63,7 +63,7 @@ sudo yum install -y unzip
 sudo yum install -y git
 sudo yum install -y epel-release
 # NOTE: just my personal preference, not actually required:
-sudo yum install -y vim-enhanced
+sudo yum install -y vim-enhanced screen
 echo "--> prereqs installed."
 
 # hostname
@@ -161,7 +161,8 @@ if sh $CATALINA_HOME/bin/version.sh | grep $TOMCAT_VERSION ; then
 else
   echo "--> Installing tomcat $TOMCAT_VERSION..."
   cd $ADMIN_HOME
-  wget -q $APACHE_MIRROR/tomcat/tomcat-8/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz
+  # wget -q $APACHE_MIRROR/tomcat/tomcat-8/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz
+  wget -q http://archive.apache.org/dist/tomcat/tomcat-8/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz
   sudo tar -zxf apache-tomcat-$TOMCAT_VERSION.tar.gz
   # make sure we have what we need before proceeding
   if [ -d "apache-tomcat-$TOMCAT_VERSION" ]; then
@@ -191,6 +192,8 @@ After=syslog.target network.target
 [Service]
 Type=forking
 
+User=$APPLICATION_USER
+Group=$APPLICATION_USER
 Environment=TOMCAT_USER=$APPLICATION_USER
 Environment=JAVA_HOME=$JAVA_HOME
 Environment='JAVA_OPTS=-Djava.awt.headless=true -Dfile.encoding=UTF-8'

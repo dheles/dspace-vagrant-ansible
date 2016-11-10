@@ -26,3 +26,10 @@ ssl_certificate_chain_file: false                # "star_library_jhu_edu_interm.
 ssl_certificate_path:       "/etc/pki/tls/certs"
 ssl_certificate_key_path:   "/etc/pki/tls/private"
 ssl_certificate_subj:       "/C=US/ST=Maryland/L=Baltimore/O=JHU/CN={{ app_fqdn }}"
+
+# SSH vars
+project:                "dspace"
+environ:                "dev" # dev || stage || prod
+login_user_key:         "{{ project }}_{{ environ }}"
+login_user_passphrase:  "{{ vault_login_user_passphrase }}"
+create_login_user_key:  true

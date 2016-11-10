@@ -7,19 +7,16 @@ app_hostname:     "dspace-prod"
 db_pass:          "{{ vault_db_pass }}"
 tomcat_pass:      "{{ vault_tomcat_pass }}"
 
-# setup vars
-login_user_key: "dspace_prod.pub"
-
 # email vars:
-mail_server: "{{ vault_mail_server }}"
-mail_admin: "{{ vault_mail_admin }}"
+mail_server:  "{{ vault_mail_server }}"
+mail_admin:   "{{ vault_mail_admin }}"
 
 # admin vars:
-admin_email: "{{ vault_admin_email }}"
-admin_firstname: "{{ vault_admin_firstname }}"
-admin_lastname: "{{ vault_admin_lastname }}"
-admin_password: "{{ vault_admin_password }}"
-admin_language: "English"
+admin_email:      "{{ vault_admin_email }}"
+admin_firstname:  "{{ vault_admin_firstname }}"
+admin_lastname:   "{{ vault_admin_lastname }}"
+admin_password:   "{{ vault_admin_password }}"
+admin_language:   "English"
 
 # SSL vars
 self_sign_cert:             false
@@ -30,8 +27,27 @@ ssl_certificate_path:       "/etc/pki/tls/certs"
 ssl_certificate_key_path:   "/etc/pki/tls/private"
 ssl_certificate_subj:       ""
 
+# SSH vars
+environ:                "prod" # dev || stage || prod
+login_user_key:         "dspace_prod"
+create_login_user_key:  false
+
 # deployment vars
 # ---------------
 reloadable: false
 caching_allowed: true
+# TODO: currently set to self. adjust.
+restricted_ip_range: "10.162.127.158"
 production: True # TODO: use or lose
+
+# assetstore vars
+# ---------------
+stores_available: true
+stores_fstab: "sam.mse.jhu.edu:/apps/dspace"
+
+# old prod vars
+remote_host:      "xen02.mse.jhu.edu"
+remote_user:      "dspace15"
+remote_database:  "dspace15"
+remote_password:  "{{ vault_remote_password }}"
+remote_backup:    "jscholarship_backup.sql"

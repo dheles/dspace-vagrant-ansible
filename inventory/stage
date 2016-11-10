@@ -2,12 +2,12 @@
 
 # stage:
 # ------------------
-[app]
+[app_servers]
 dspace-stage.library.jhu.edu
 
-[db]
+[db_servers]
 psql02.mse.jhu.edu
 
 [stage:children]
-app
-db
+app_servers
+db_servers

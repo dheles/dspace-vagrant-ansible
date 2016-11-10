@@ -6,6 +6,11 @@ dspace-prod.mse.jhu.edu
 [db_servers]
 psql03.mse.jhu.edu
 
+[current_prod_db]
+xen02.mse.jhu.edu
+#psql01.mse.jhu.edu
+
 [prod:children]
 app_servers
 db_servers
+current_prod_db

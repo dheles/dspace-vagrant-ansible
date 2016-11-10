@@ -30,12 +30,11 @@
           force: yes
       when: not stores_available
 
-    # TODO: test
-    # cis.mse.jhu.edu:/sam1/RESTORE           /mnt/dspace/storage     nfs     rw,tcp,intr,noatime     0 0
+    # e.g. sam.mse.jhu.edu:/apps/dspace    /mnt/dspace/storage             nfs     rw,tcp,intr,noatime     0 0
     - name: mount stores
       mount:
         name: /mnt/dspace/storage
-        src: cis.mse.jhu.edu:/sam1/RESTORE
+        src: "{{ stores_fstab }}"
         fstype: nfs
         opts: rw,tcp,intr,noatime
         state: present

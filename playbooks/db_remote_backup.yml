@@ -1,0 +1,38 @@
+---
+# as-written, this is unlikely to be of use to anyone who has a better option.
+# with limited options, i'm going to have to remotely backup from a server
+# that has been manually granted the permissions necessary
+
+- name: create backup of remote database
+  hosts: db_servers
+  become: yes
+  become_user: "{{ login_user }}"
+
+  tasks:
+    - name: add pgpass entry for remote database
+      include: tasks/pgpass.yml
+      vars:
+        admin_user: "{{ login_user }}"
+        admin_group: "{{ login_group }}"
+        host: "{{ remote_host }}"
+        database: "{{ remote_database }}"
+        user: "{{ remote_user }}"
+        password: "{{ remote_password }}"
+        state: "present"
+
+    - name: backup database
+      shell: >
+        pg_dump --format=custom --oids --no-owner --no-acl --ignore-version
+        -h "{{ remote_host }}"
+        -U "{{ remote_user }}" "{{ remote_database }}" > "{{ remote_backup }}"
+
+    - name: remove pgpass entry for remote database
+      include: tasks/pgpass.yml
+      vars:
+        admin_user: "{{ login_user }}"
+        admin_group: "{{ login_group }}"
+        host: "{{ remote_host }}"
+        database: "{{ remote_database }}"
+        user: "{{ remote_user }}"
+        password: "{{ remote_password }}"
+        state: "absent"

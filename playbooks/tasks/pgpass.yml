@@ -1,11 +1,11 @@
 ---
-- name: adjust pgpass 
+- name: adjust pgpass
   lineinfile:
     dest: "/home/{{ admin_user }}/.pgpass"
-    regexp: "^localhost:\\*:{{ database }}:"
-    line:    "localhost:*:{{ database }}:{{ user }}:{{ password }}"
+    regexp: "^{{ host | default('localhost')  }}:\\*:{{ database }}:"
+    line:    "{{ host | default('localhost')  }}:*:{{ database }}:{{ user }}:{{ password }}"
     state: "{{ state }}"
     create: yes
     owner: "{{ admin_user }}"
-    group: "{{ admin_user }}"
+    group: "{{ admin_group }}"
     mode: "0600"

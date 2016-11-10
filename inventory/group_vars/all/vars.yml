@@ -81,6 +81,7 @@ dspace_webapps:
   - name: "oai"
   - name: "rdf"
   - name: "rest"
+    address_restriction: true
   - name: "sword"
   - name: "swordv2"
 # TODO: remember to set otherwise for production
@@ -94,9 +95,15 @@ production: false # TODO: use or lose
 db_fqdn: "{{ db_hostname }}.{{ domain }}"
 db_port: "5432"
 db_url: "jdbc:postgresql://{{ db_fqdn }}:{{ db_port }}/{{ db_name }}"
+pgdata: "/var/lib/pgsql/data/"
+postgres_user: "postgres"
+pgbin: ""
 
 # misc vars:
 # -----------
-login_user: "deploy"
+login_user:   "deploy"
+login_group:  "{{ login_user }}"
+login_additional_groups: ""
 anonymized_backup: "anonymized_backup.sql"
+production_backup: "production_backup.sql"
 stores_available: false

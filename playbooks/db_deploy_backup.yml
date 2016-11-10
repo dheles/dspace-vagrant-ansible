@@ -1,60 +1,130 @@
 ---
-# NOTE: while it would be easier to synchronize files directly from one server to  another,
-# it appears that this would require installing a private key on one of them.
+# NOTE: while it would be easier to synchronize files directly from one server to another,
+# i cannot seem to get the synchronize module to cooperate without asking for a password on the server.
 # so instead, i go through the trouble of bringing the desired file to the control,
 # then pushing it to the desired destination(s)
-
-# NOTE: can't seem to get synchronize module to keep the file ownership as advertised
-# therefore, using copy when moving to destination, as this allows resetting ownership
-
-- name: transfer backup from server
+- name: fetch backup file from server
   hosts: db_prod
-  become: yes
-  become_user: "{{ login_user }}"
+
+  vars:
+    backup_file: "{{ anonymized_backup }}"
 
   tasks:
-    - name: transfer backup file from db_prod
-      synchronize:
-        src: "{{ anonymized_backup }}"
-        dest: "../db_backup/{{ anonymized_backup }}"
-        mode: "pull"
-        use_ssh_args: yes
+    - name: fetch backup file from server
+      fetch:
+        src: "{{ backup_file }}"
+        dest: "../db_backup/"
+        flat: true
 
 - name: stop app servers before restoring database
   hosts: app_not_prod
-  become: yes
+  become: true
 
   tasks:
     - name: stop tomcat
       service: name=tomcat state=stopped
+
+# - name: install prereqs for synchronize module
+#   hosts: app_not_prod
+#   become: yes
+#
+#   tasks:
+#     - name: install prereqs for synchronize module
+#       include: tasks/sync_prereqs.yml
 
 - name: deploy backup to other server(s)
   hosts: db_not_prod
   become: yes
   become_user: "{{ login_user }}"
 
+  vars:
+    backup_file: "{{ anonymized_backup }}"
+    # current_prod_db: "psql03.mse.jhu.edu"
+    # TODO: get host from inventory like "{{ db_prod[0] }}" (so far, no joy)
+
   handlers:
+    - include: handlers/reload_postgres.yml
     - include: handlers/restart_postgres.yml
 
   tasks:
     - name: install ansible postgres prereqs
       include: tasks/ansible_postgres_prereqs.yml
 
-    - name: transfer backup file to destination server
+    # TODO: use synchronize to move backup directly between servers
+    # cannot convince the module to not ask for a password on the server,
+    # halting the process...
+    # - name: install prereqs for synchronize module
+    #   include: tasks/sync_prereqs.yml
+    #
+    # - name: transfer backup file from server
+    #   synchronize:
+    #     src: "/home/deploy/{{ backup_file }}"
+    #     dest: "/home/deploy/{{ backup_file }}"
+    #     mode: push
+    #     # set_remote_user: false
+    #     # use_ssh_args: yes
+    #   delegate_to: "{{ current_prod_db }}" # "{{ db_prod[0] }}"
+
+    - name: copy backup file to server
       copy:
-        src: "../db_backup/{{ anonymized_backup }}"
-        dest: "~/{{ anonymized_backup }}"
-        owner: "{{ login_user }}"
-        group: "{{ login_user }}"
+        src: "../db_backup/{{ backup_file }}"
+        dest: "~/{{ backup_file }}"
+
+    - name: add pg_hba entry for database
+      include: tasks/pg_hba_entry.yml
+      vars:
+        connection_type: "local"
+        database: "{{ db_name }}"
+        user: "{{ db_user }}"
+        auth_method: "md5"
+        state: "present"
+
+    - name: add pgpass entry for database
+      include: tasks/pgpass.yml
+      vars:
+        admin_user: "{{ login_user }}"
+        admin_group: "{{ login_group }}"
+        database: "{{ db_name }}"
+        user: "{{ db_user }}"
+        password: "{{ db_pass }}"
+        state: "present"
 
     - name: restore db from backup
       include: tasks/restore_db.yml
       vars:
         database: "{{ db_name }}"
         user: "{{ db_user }}"
-        file: "{{ anonymized_backup }}"
+        file: "{{ backup_file }}"
+
+    # TODO: review
+    - name: remove pg_hba entry for database
+      include: tasks/pg_hba_entry.yml
+      vars:
+        connection_type: "local"
+        database: "{{ db_name }}"
+        user: "{{ db_user }}"
+        auth_method: "md5"
+        state: "absent"
+
+    - name: remove pgpass entry for database
+      include: tasks/pgpass.yml
+      vars:
+        admin_user: "{{ login_user }}"
+        admin_group: "{{ login_group }}"
+        database: "{{ db_name }}"
+        user: "{{ db_user }}"
+        password: "{{ db_pass }}"
+        state: "absent"
 
     - name: remove the backup file from the server
       file:
-        path: "{{ anonymized_backup }}"
+        path: "{{ backup_file }}"
         state: absent
+
+- name: restart app servers after restoring database
+  hosts: app_not_prod
+  become: yes
+
+  tasks:
+    - name: start tomcat
+      service: name=tomcat state=started

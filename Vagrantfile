@@ -1,13 +1,13 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-require_relative './script/authorize_key'
-require 'securerandom'
+# require_relative './script/authorize_key'
+# require 'securerandom'
 
 domain          = "jhu.dev"
-auto_user       = "deploy"
-auto_user_arg   = "-ou #{auto_user}"
-auto_key        = "~/.ssh/dspace_stage.pub"
+# auto_user       = "deploy"
+# auto_user_arg   = "-ou #{auto_user}"
+# auto_key        = "~/.ssh/dspace_stage.pub"
 setup_complete  = false
 
 
@@ -47,35 +47,36 @@ Vagrant.configure(2) do |config|
         vb.linked_clone = true
       end
 
-      # create user to do further work with Ansible
-      ansible_args = [auto_user_arg].join(" ")
-      host.vm.provision "ansible prerequisites", type: "shell", path: "script/ansible_prereqs.sh", args: ansible_args
-
-      # add authorized key to user created by the ansible prereqs script
-      authorize_key host, auto_user, auto_key
+      # # create user to do further work with Ansible
+      # ansible_args = [auto_user_arg].join(" ")
+      # host.vm.provision "ansible prerequisites", type: "shell", path: "script/ansible_prereqs.sh", args: ansible_args
+      #
+      # # add authorized key to user created by the ansible prereqs script
+      # authorize_key host, auto_user, auto_key
 
       if short_name == "dspace-db-dev" # last in the list
         setup_complete = true
       end
 
-      # if setup_complete
-      #   host.vm.provision "ansible" do |ansible|
-      #     # ansible.verbose = "v"
-      #     ansible.playbook = "playbooks/provision.yml"
-      #
-      #     # NOTE: not reading from ansible.cfg
-      #     ansible.inventory_path = "inventory/test_environment"
-      #
-      #     # NOTE: can't just leave this out and expect it to default to "all"
-      #     ansible.limit = "all"
-      #
-      #     # NOTE: if this doesn't agree with an inventory entry,
-      #     # group_vars may not apply correctly;
-      #     # if it doesn't agree with vagrant's names for things, it won't run.
-      #     # therefore, it's best to specify "all" and filter in the playbooks
-      #     # ansible.limit = "#{short_name}"
-      #   end
-      # end
+      if setup_complete
+        host.vm.provision "ansible" do |ansible|
+          # ansible.verbose = "v"
+          # ansible.playbook = "playbooks/provision.yml"
+          ansible.playbook = "playbooks/automation_setup.yml"
+
+          # NOTE: not reading from ansible.cfg
+          ansible.inventory_path = "inventory/dev"
+
+          # NOTE: can't just leave this out and expect it to default to "all"
+          ansible.limit = "all"
+
+          # NOTE: if this doesn't agree with an inventory entry,
+          # group_vars may not apply correctly;
+          # if it doesn't agree with vagrant's names for things, it won't run.
+          # therefore, it's best to specify "all" and filter in the playbooks
+          # ansible.limit = "#{short_name}"
+        end
+      end
 
     end
   end

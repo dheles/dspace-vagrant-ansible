@@ -1,18 +1,30 @@
 ---
 # TODO: generalize
 - name: create anonymized backup of production database
-  hosts: db_prod
+  hosts: db_servers
   become: yes
   become_user: "{{ login_user }}"
 
   vars:
     anon_db: "dspace-anon"
-    backup_file: "production_dump.sql"
+    backup_file: "{{ production_backup }}"
 
   handlers:
-    - include: handlers/restart_postgres.yml
+    - include: handlers/reload_postgres.yml
 
   tasks:
+    # - name: install ansible postgres prereqs
+    #   include: tasks/ansible_postgres_prereqs.yml
+
+    - name: add pg_hba entry for production database
+      include: tasks/pg_hba_entry.yml
+      vars:
+        connection_type: "local"
+        database: "{{ db_name }}"
+        user: "{{ db_user }}"
+        auth_method: "md5"
+        state: "present"
+
     - name: add pg_hba entry for anonymized database
       include: tasks/pg_hba_entry.yml
       vars:
@@ -26,7 +38,18 @@
       include: tasks/pgpass.yml
       vars:
         admin_user: "{{ login_user }}"
+        admin_group: "{{ login_group }}"
         database: "{{ anon_db }}"
+        user: "{{ db_user }}"
+        password: "{{ db_pass }}"
+        state: "present"
+
+    - name: add pgpass entry for production database
+      include: tasks/pgpass.yml
+      vars:
+        admin_user: "{{ login_user }}"
+        admin_group: "{{ login_group }}"
+        database: "{{ db_name }}"
         user: "{{ db_user }}"
         password: "{{ db_pass }}"
         state: "present"
@@ -49,6 +72,7 @@
       include: tasks/query_db.yml
       vars:
         admin_user: "{{ login_user }}"
+        admin_group: "{{ login_group }}"
         database: "{{ anon_db }}"
         user: "{{ db_user }}"
         query_file: "queries/anonymize_db.sql"
@@ -64,9 +88,9 @@
       postgresql_db:
         name: "{{ anon_db }}"
         state: "absent"
-      become_user: postgres
+      become_user: "{{ postgres_user }}"
 
-    - name: remove pg_hba entry
+    - name: remove pg_hba entry for anonymized database
       include: tasks/pg_hba_entry.yml
       vars:
         connection_type: "local"
@@ -75,16 +99,39 @@
         auth_method: "md5"
         state: "absent"
 
-    - name: remove pgpass entry
+    # TODO: review
+    - name: remove pg_hba entry for production database
+      include: tasks/pg_hba_entry.yml
+      vars:
+        connection_type: "local"
+        database: "{{ db_name }}"
+        user: "{{ db_user }}"
+        auth_method: "md5"
+        state: "absent"
+
+    - name: remove pgpass entry for anonymized database
       include: tasks/pgpass.yml
       vars:
         admin_user: "{{ login_user }}"
+        admin_group: "{{ login_group }}"
         database: "{{ anon_db }}"
         user: "{{ db_user }}"
         password: "{{ db_pass }}"
         state: "absent"
 
-    - name: remove the backup file from the server
-      file:
-        path: "{{ backup_file }}"
-        state: absent
+    - name: remove pgpass entry for production database
+      include: tasks/pgpass.yml
+      vars:
+        admin_user: "{{ login_user }}"
+        admin_group: "{{ login_group }}"
+        database: "{{ db_name }}"
+        user: "{{ db_user }}"
+        password: "{{ db_pass }}"
+        state: "absent"
+
+    # NOTE: since we can use the production backup in the new production env
+    # and the anonymized backup elsewhere, let's keep them both (for now)
+    # - name: remove the production backup file from the server
+    #   file:
+    #     path: "{{ backup_file }}"
+    #     state: absent

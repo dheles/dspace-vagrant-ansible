@@ -1,0 +1,62 @@
+# NOTE: USE WITH CAUTION
+# this is intended to manage cross-environment operations
+# (e.g. data refresh from prod to stage &/or dev)
+# running a playbook without proper limiting will affect dev, stage, and prod
+# ...there are lots of ways this could be problematic.
+# for most operations, use of the environment-specific inventory files is recommended
+
+# dev:
+# ------------------
+#[app_dev]
+#dspace-dev.jhu.dev
+
+#[db_dev]
+#dspace-db-dev.jhu.dev
+
+#[dev:children]
+#app_dev
+#db_dev
+
+# stage:
+# ------------------
+[app_stage]
+dspace-stage.mse.jhu.edu
+
+[db_stage]
+psql02.mse.jhu.edu
+
+[stage:children]
+app_stage
+db_stage
+
+# prod:
+# ------------------
+[app_prod]
+dspace-prod.mse.jhu.edu
+
+[db_prod]
+psql03.mse.jhu.edu
+
+[prod:children]
+app_prod
+db_prod
+
+# groups:
+# ------------------
+[app_servers:children]
+#app_dev
+#app_stage
+app_prod
+
+[app_not_prod:children]
+#app_dev
+app_stage
+
+[db_servers:children]
+#db_dev
+#db_stage
+db_prod
+
+[db_not_prod:children]
+#db_dev
+db_stage

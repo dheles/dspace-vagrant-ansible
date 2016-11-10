@@ -1,0 +1,11 @@
+---
+# http://stackoverflow.com/questions/25505146/how-to-copy-files-between-two-nodes-using-ansible#25747338
+# transfer a file between remote servers
+- hosts: ServerA
+  tasks:
+    - name: Transfer file from ServerA to ServerB
+      synchronize:
+        src: /path/on/server_a
+        dest: /path/on/server_b
+        mode: pull
+      delegate_to: ServerB

@@ -40,7 +40,7 @@ sudo yum update -y
 # TODO: review list
 echo "--> Installing prereqs..."
 # NOTE: just my personal preference, not actually required:
-sudo yum install -y vim-enhanced
+sudo yum install -y vim-enhanced screen
 echo "--> prereqs are now installed."
 
 # hostname

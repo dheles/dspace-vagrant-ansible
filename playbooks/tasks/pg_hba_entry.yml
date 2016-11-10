@@ -7,12 +7,12 @@
 # - auth_method
 - name: adjust pg_hba.conf for connection
   lineinfile:
-    dest: "/var/lib/pgsql/data/pg_hba.conf" # TODO: parameterize
+    dest: "{{ pgdata }}/pg_hba.conf"
     regexp: '^{{ connection_type }}\s+{{ database }}\s+{{ user }}\s+{{ auth_method }}'
     line: "{{ connection_type }}   {{ database }}  {{ user }}   {{ auth_method }}"
     state: "{{ state }}"
   become: yes
-  become_user: postgres
-  notify: restart postgresql
+  become_user: "{{ postgres_user }}"
+  notify: reload postgresql
 
 - meta: flush_handlers

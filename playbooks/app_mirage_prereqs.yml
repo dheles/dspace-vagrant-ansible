@@ -31,6 +31,8 @@
 
     - name: update rubygems
       shell: "gem update --system"
+      register: result
+      changed_when: "'Latest version currently installed' not in result.stdout"
 
     - name: install sass & compass
       gem:

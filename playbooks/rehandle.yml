@@ -1,5 +1,5 @@
 ---
-- hosts: db_stage
+- hosts: db_servers
   become: yes
   become_user: "{{ login_user }}"
 
@@ -8,7 +8,7 @@
     new_handle: "http://jhir.library.jhu.edu/handle/1774"
 
   handlers:
-    - include: handlers/restart_postgres.yml
+    - include: handlers/reload_postgres.yml
 
   tasks:
     - name: add pg_hba entry for database
@@ -24,6 +24,7 @@
       include: tasks/pgpass.yml
       vars:
         admin_user: "{{ login_user }}"
+        admin_group: "{{ login_group }}"
         database: "{{ db_name }}"
         user: "{{ db_user }}"
         password: "{{ db_pass }}"
@@ -33,6 +34,7 @@
       include: tasks/query_db.yml
       vars:
         admin_user: "{{ login_user }}"
+        admin_group: "{{ login_group }}"
         database: "{{ db_name }}"
         user: "{{ db_user }}"
         query_file: "queries/rehandle.sql.j2"
@@ -42,7 +44,7 @@
     #     src: "{{ item.src }}"
     #     dest: "{{ item.dest }}"
     #     owner: "{{ login_user }}"
-    #     group: "{{ login_user }}"
+    #     group: "{{ login_group }}"
     #     mode: 0644
     #   with_items:
     #     - src: "queries/rehandle.sql"

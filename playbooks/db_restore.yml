@@ -1,0 +1,55 @@
+---
+- name: stop app servers before restoring database
+  hosts: app_servers
+  become: yes
+
+  tasks:
+    - name: stop tomcat
+      service: name=tomcat state=stopped
+
+# TODO: generalize
+- name: restore database from remote backup
+  hosts: db_servers
+  become: yes
+  become_user: "{{ login_user }}"
+
+  handlers:
+    - include: handlers/reload_postgres.yml
+
+  tasks:
+    - name: install ansible postgres prereqs
+      include: tasks/ansible_postgres_prereqs.yml
+
+    - name: add pg_hba entry for production database
+      include: tasks/pg_hba_entry.yml
+      vars:
+        connection_type: "local"
+        database: "{{ db_name }}"
+        user: "{{ db_user }}"
+        auth_method: "md5"
+        state: "present"
+
+    - name: add pgpass entry for production database
+      include: tasks/pgpass.yml
+      vars:
+        admin_user: "{{ login_user }}"
+        admin_group: "{{ login_group }}"
+        database: "{{ db_name }}"
+        user: "{{ db_user }}"
+        password: "{{ db_pass }}"
+        state: "present"
+
+    - name: restore db from backup
+      include: tasks/restore_db.yml
+      vars:
+        database: "{{ db_name }}"
+        user: "{{ db_user }}"
+        file: "{{ remote_backup }}"
+
+- name: restart app servers after restoring database
+  hosts: app_servers
+  become: yes
+
+  tasks:
+    - name: start tomcat
+      service: name=tomcat state=started

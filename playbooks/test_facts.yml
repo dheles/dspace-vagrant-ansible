@@ -1,0 +1,11 @@
+- name: test fact gathering
+  hosts: current_prod_db
+  become: true
+
+  tasks:
+    - name: gather facts
+      setup:
+      register: facts
+
+    - name: report facts
+      debug: var=facts

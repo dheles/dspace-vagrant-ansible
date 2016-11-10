@@ -1,0 +1,5 @@
+---
+- name: reload postgresql
+  shell: "{{ pgbin }}pg_ctl reload -D {{ pgdata }}"
+  become: yes
+  become_user: "{{ postgres_user }}"

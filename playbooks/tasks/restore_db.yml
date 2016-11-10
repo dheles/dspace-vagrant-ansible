@@ -3,7 +3,7 @@
   postgresql_db:
     name: "{{ database }}"
     state: "absent"
-  become_user: postgres
+  become_user: "{{ postgres_user }}"
 
 - name: recreate db
   postgresql_db:
@@ -11,13 +11,13 @@
     state: "present"
     owner: "{{ user }}"
     encoding: "UNICODE"
-  become_user: postgres
+  become_user: "{{ postgres_user }}"
 
 - name: restore db from file
   shell: "pg_restore -U {{ user }} -d {{ database }} -n public -O < {{ file }}"
 
 - name: check restored db
-  become_user: postgres
+  become_user: "{{ postgres_user }}"
   shell: "psql -l"
   register: result
   failed_when: "'{{ database }}' not in result.stdout"

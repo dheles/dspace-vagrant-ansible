@@ -11,7 +11,7 @@
     src: "{{ query_file }}"
     dest: "{{ remote_query_file }}"
     owner: "{{ admin_user }}"
-    group: "{{ admin_user }}"
+    group: "{{ admin_group }}"
     mode: 0644
 
 - name: execute query from file

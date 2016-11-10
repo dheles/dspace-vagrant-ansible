@@ -33,6 +33,7 @@
       include: tasks/pgpass.yml
       vars:
         admin_user: "{{ login_user }}"
+        admin_group: "{{ login_group }}"
         database: "{{ db_name }}"
         user: "{{ db_user }}"
         password: "{{ db_pass }}"
@@ -53,7 +54,7 @@
         file: "{{ restore_file }}"
 
     - name: check prod db
-      become_user: postgres
+      become_user: "{{ postgres_user }}"
       shell: "psql -l"
       register: result
       failed_when: "'{{ db_name }}' not in result.stdout"
