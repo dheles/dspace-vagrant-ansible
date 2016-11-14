@@ -75,7 +75,7 @@
         admin_group: "{{ login_group }}"
         database: "{{ anon_db }}"
         user: "{{ db_user }}"
-        query_file: "queries/anonymize_db.sql"
+        query_file: "queries/anonymize_db.sql.j2"
 
     - name: backup anonymized database
       include: tasks/backup_db.yml

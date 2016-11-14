@@ -1,0 +1,44 @@
+/*
+anonymize PII data in dspace 5.x, including JHUtant fields
+currently, leaves names intact for testing
+*/
+
+UPDATE eperson
+SET	email = 'test+' || eperson_id || '@jhu.edu',
+		netid = eperson_id,
+		jhu_hopkinsid = eperson_id,
+    jhu_jhedid = eperson_id,
+		password = NULL
+WHERE email NOT IN ({{ admin_users }});
+
+/* remove all phone numbers */
+WITH t AS (
+    SELECT 	v.metadata_value_id AS id,
+    		v.text_value AS phone_number,
+            f.element AS field
+    FROM metadatavalue v
+    JOIN metadatafieldregistry f
+    ON v.metadata_field_id = f.metadata_field_id
+    WHERE f.element = 'phone'
+)
+UPDATE metadatavalue v
+SET text_value = ''
+FROM t
+WHERE v.metadata_value_id = t.id;
+
+/* remove all registration data */
+TRUNCATE registrationdata;
+VACUUM registrationdata;
+
+/* to view results:
+SELECT *
+FROM eperson e
+JOIN metadatavalue v
+ON e.eperson_id = v.resource_id
+JOIN metadatafieldregistry f
+ON v.metadata_field_id = f.metadata_field_id
+JOIN metadataschemaregistry s
+ON f.metadata_schema_id = s.metadata_schema_id
+WHERE s.short_id = 'eperson'
+ORDER BY eperson_id
+*/

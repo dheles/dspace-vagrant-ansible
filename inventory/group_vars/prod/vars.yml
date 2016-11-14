@@ -17,6 +17,8 @@ admin_firstname:  "{{ vault_admin_firstname }}"
 admin_lastname:   "{{ vault_admin_lastname }}"
 admin_password:   "{{ vault_admin_password }}"
 admin_language:   "English"
+# members of this list will not be anonymized (no additional permissions granted):
+admin_users: "{{ vault_admin_users }}"
 
 # SSL vars
 self_sign_cert:             false
