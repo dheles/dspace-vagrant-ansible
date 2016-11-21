@@ -1,4 +1,5 @@
 ---
+# TODO: add fstab edits and mounting/umounting. include bidirectionality, because things change, kundun
 - name: mount assetstores
   hosts: app_servers
   become: yes
