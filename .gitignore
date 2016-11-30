@@ -8,3 +8,4 @@
 public_ssh_key/authorized_key.pub
 db_backup/*
 !db_backup/.keep
+inventory/host_vars/*

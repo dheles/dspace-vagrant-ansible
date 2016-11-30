@@ -1,7 +1,7 @@
 ---
-- include: db_remote_backup.yml
-- include: db_restore.yml
-- include: app_upgrade_db.yml
-- include: rehandle.yml
+# - include: db_remote_backup.yml
+# - include: db_restore.yml
+# - include: app_upgrade_db.yml
+# - include: rehandle.yml
 - include: db_anonymize_prod.yml
-# - include: db_deploy_backup.yml
+- include: db_deploy_backup.yml

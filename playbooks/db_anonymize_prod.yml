@@ -1,7 +1,7 @@
 ---
 # TODO: generalize
 - name: create anonymized backup of production database
-  hosts: db_servers
+  hosts: db_prod
   become: yes
   become_user: "{{ login_user }}"
 
@@ -129,8 +129,6 @@
         password: "{{ db_pass }}"
         state: "absent"
 
-    # NOTE: since we can use the production backup in the new production env
-    # and the anonymized backup elsewhere, let's keep them both (for now)
     # - name: remove the production backup file from the server
     #   file:
     #     path: "{{ backup_file }}"
