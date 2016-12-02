@@ -43,5 +43,5 @@ production: False # TODO: use or lose
 
 # assetstore vars
 # ---------------
-stores_available: false
+stores_available: true
 stores_fstab: "sam.mse.jhu.edu:/apps/dspace.snapshot"

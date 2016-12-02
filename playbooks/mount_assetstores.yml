@@ -1,27 +1,67 @@
 ---
-# TODO: add fstab edits and mounting/umounting. include bidirectionality, because things change, kundun
 - name: mount assetstores
   hosts: app_servers
   become: yes
 
   tasks:
+    - name: simulate stores?
+      debug: var=stores_available
+
+    # TODO: surely there's a more elegant way...
+    - name: set vars that follow from the value of stores_available
+      set_fact:
+        local_dirs_presence: "absent"
+      when: stores_available
+    - set_fact:
+        local_dirs_presence: "directory"
+      when: not stores_available
+
+    - name: create or remove local assetstore directories
+      file:
+        dest: "/opt/dspace/assetstore/{{ item }}"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        state: "{{ local_dirs_presence }}"
+      with_items:
+        - assetstore
+        - assetstore1
+
+    - name: create the directory to contain the mount or symlink
+      file:
+        dest: "/mnt/dspace"
+        state: directory
+
+    # NOTE: when switching from one mode to another, we need to first undo the existing one
+    # a block for each condition is the easiest way to control the order in which this will happen
     - block:
-      - name: simulate stores
-        debug: var=stores_available
+      # NOTE: this will delete any items currently in your local assetstore
+      # destroy symlinks to local assetstore
+      -  file:
+          dest: /mnt/dspace/storage
+          src: /opt/dspace/assetstore
+          state: absent
+          force: yes
 
-      - file:
-          dest: "/opt/dspace/assetstore/{{ item }}"
-          owner: "{{ app_user }}"
-          group: "{{ app_user }}"
-          state: directory
-        with_items:
-          - assetstore
-          - assetstore1
+      # e.g. sam.mse.jhu.edu:/apps/dspace    /mnt/dspace/storage             nfs     rw,tcp,intr,noatime     0 0
+      # mount remote stores
+      - mount:
+          name: /mnt/dspace/storage
+          src: "{{ stores_fstab }}"
+          fstype: nfs
+          opts: rw,tcp,intr,noatime
+          state: mounted
+      when: stores_available
 
-      - file:
-          dest: "/mnt/dspace"
-          state: directory
+    - block:
+      # unmount remote stores
+      - mount:
+          name: /mnt/dspace/storage
+          src: "{{ stores_fstab }}"
+          fstype: nfs
+          opts: rw,tcp,intr,noatime
+          state: absent
 
+      # create symlinks to local assetstores
       - file:
           dest: /mnt/dspace/storage
           src: /opt/dspace/assetstore
@@ -30,13 +70,3 @@
           state: link
           force: yes
       when: not stores_available
-
-    # e.g. sam.mse.jhu.edu:/apps/dspace    /mnt/dspace/storage             nfs     rw,tcp,intr,noatime     0 0
-    - name: mount stores
-      mount:
-        name: /mnt/dspace/storage
-        src: "{{ stores_fstab }}"
-        fstype: nfs
-        opts: rw,tcp,intr,noatime
-        state: present
-      when: stores_available
