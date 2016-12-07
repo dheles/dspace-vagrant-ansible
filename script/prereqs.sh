@@ -8,6 +8,8 @@ function usage
 # set defaults:
 ADMIN="deploy"
 APPLICATION_USER="dspace"
+# TODO: fully parameterize and test
+APPLICATION_USER_GUID="1002"
 TOMCAT_ADMIN="CHANGEME"
 TOMCAT_ADMIN_PASSWORD="CHANGEME"
 HOSTNAME="DSPACE"
@@ -151,7 +153,7 @@ else
 fi
 
 # system user
-sudo useradd -m -c "$APPLICATION_USER system account" $APPLICATION_USER
+sudo useradd -m -c "$APPLICATION_USER system account" -u $APPLICATION_USER_GUID $APPLICATION_USER
 
 # tomcat
 TOMCAT_VERSION="8.5.5"

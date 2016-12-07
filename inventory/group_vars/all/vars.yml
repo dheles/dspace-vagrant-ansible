@@ -24,6 +24,7 @@ tomcat_admin_arg: "-ta {{ tomcat_admin }}"
 #tomcat_pass:      ENVIRONMENT VARS
 tomcat_pass_arg:  "-tp {{ tomcat_pass }}"
 app_fqdn:         "{{ app_hostname }}.{{ domain }}"
+app_user_guid:    1002
 
 dspace_name:              "JScholarship"
 handle_canonical_prefix:  "http://jhir.library.jhu.edu/handle/"
