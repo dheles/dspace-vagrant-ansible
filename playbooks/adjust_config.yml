@@ -73,6 +73,19 @@
           regexp: "^gui-item-limit"
           line: "gui-item-limit = 500"
         notify: update configs
+    # end block - embargo settings
+
+    - name: configure logging
+      template:
+        src: templates/log4j.properties.j2
+        dest: "{{ dspace_source }}/dspace/config/log4j.properties"
+      notify: update configs
+
+    - name: configure logging - solr
+      template:
+        src: templates/log4j-solr.properties.j2
+        dest: "{{ dspace_source }}/dspace/config/log4j-solr.properties"
+      notify: update configs
 
     # # TODO: move to build.properties
     # # handle settings

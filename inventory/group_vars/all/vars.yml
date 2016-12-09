@@ -100,6 +100,12 @@ pgdata: "/var/lib/pgsql/data/"
 postgres_user: "postgres"
 pgbin: ""
 
+# logging vars
+loglevel_other: WARN
+loglevel_dspace: WARN
+max_logs: 14
+log_dir: "{{ dspace_install }}/log"
+
 # misc vars:
 # -----------
 login_user:   "deploy"
