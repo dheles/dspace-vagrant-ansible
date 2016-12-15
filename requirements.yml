@@ -1,0 +1,9 @@
+---
+# REM: maunally install before using with
+# $ ansible-galaxy install -r requirements.yml
+
+- src: https://github.com/dheles/ansible-role-login-user
+  name: login-user
+
+- src: https://github.com/dheles/ansible-role-secure-ssh
+  name: secure-ssh

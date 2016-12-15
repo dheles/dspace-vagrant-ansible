@@ -62,7 +62,7 @@ Vagrant.configure(2) do |config|
         host.vm.provision "ansible" do |ansible|
           # ansible.verbose = "v"
           # ansible.playbook = "playbooks/provision.yml"
-          ansible.playbook = "playbooks/automation_setup.yml"
+          ansible.playbook = "setup.yml"
 
           # NOTE: not reading from ansible.cfg
           ansible.inventory_path = "inventory/dev"

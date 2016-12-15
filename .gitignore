@@ -3,6 +3,12 @@
 
 # Ansible
 *.retry
+*.cache
+
+# local
+roles/*
+!roles/README.md
+!roles/local.*
 
 # project-specific
 public_ssh_key/authorized_key.pub
