@@ -1,11 +1,11 @@
 # dev:
 # ------------------
-[app]
+[app_servers]
 dspace-dev.jhu.dev
 
-[db]
+[db_servers]
 dspace-db-dev.jhu.dev
 
 [dev:children]
-app
-db
+app_servers
+db_servers
