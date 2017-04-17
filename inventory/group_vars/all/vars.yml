@@ -114,3 +114,4 @@ login_additional_groups: ""
 anonymized_backup: "anonymized_backup.sql"
 production_backup: "production_backup.sql"
 stores_available: false
+stores_fstab:     ""

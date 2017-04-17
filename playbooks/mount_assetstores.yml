@@ -50,7 +50,7 @@
           fstype: nfs
           opts: rw,tcp,intr,noatime
           state: mounted
-      when: stores_available
+      when: stores_available and stores_fstab != ""
 
     - block:
       # unmount remote stores
