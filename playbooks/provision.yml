@@ -1,4 +1,5 @@
 ---
-- include: secure_ssh.yml
+# see https://github.com/dheles/dspace-vagrant-ansible/issues/1
+# - include: secure_ssh.yml
 - include: db_provision.yml
 - include: app_provision.yml
