@@ -125,7 +125,7 @@ else
 fi
 
 # ant
-ANT_VERSION="1.9.7"
+ANT_VERSION="1.9.9"
 if ant -version | grep $ANT_VERSION ; then
   echo "--> ant $ANT_VERSION already installed, moving on."
 else
