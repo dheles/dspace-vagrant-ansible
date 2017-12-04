@@ -20,7 +20,7 @@
 # stage:
 # ------------------
 [app_stage]
-dspace-stage.mse.jhu.edu
+dspace-stage.library.jhu.edu
 
 [db_stage]
 psql02.mse.jhu.edu
